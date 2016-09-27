@@ -2,11 +2,11 @@
 
 var parser = require('./parser');
 
-var lib = require('./lib');
 var util = require('./util');
 
 var lens =
 {
+	lib: require('./lib'),
 	parse(data)
 	{
 		data = String(data);
@@ -27,7 +27,7 @@ var lens =
 				var exported = false;
 				var result = undefined;
 				
-				Object.assign(scope, lib, {
+				Object.assign(scope, lens.lib, {
 					env,
 					ast: this.ast,
 					'import': (args, done) => env.import(args[0], done),

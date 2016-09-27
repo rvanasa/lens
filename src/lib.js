@@ -2,7 +2,7 @@
 
 var util = require('./util');
 
-var request = require('request');
+// var request = require('request');
 
 module.exports = {
 	'!': util.sync((v) => !v),
@@ -105,17 +105,17 @@ module.exports = {
 			console.log('Scope: ', scope);
 		},
 	},
-	HTTP:
-	{
-		get(args, done)
-		{
-			request.get(args[0], (err, res, body) =>
-			{
-				if(err) throw err;
-				done(res, body);
-			});
-		},
-	},
+	// HTTP:
+	// {
+	// 	get(args, done)
+	// 	{
+	// 		request.get(args[0], (err, res, body) =>
+	// 		{
+	// 			if(err) throw err;
+	// 			done(res, body);
+	// 		});
+	// 	},
+	// },
 	JSON:
 	{
 		parse(args, done)
