@@ -1,0 +1,19 @@
+{
+  "name": "lens-js",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "author": "Indigo Technica",
+  "dependencies": {
+    "express": "^4.14.0",
+    "parsimmon": "^0.7.0",
+    "plasma": "rvanasa/plasma",
+    "request": "^2.74.0"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-jshint": "^1.0.0",
+    "grunt-contrib-nodeunit": "^1.0.0",
+    "grunt-contrib-uglify": "^1.0.1"
+  }
+}
