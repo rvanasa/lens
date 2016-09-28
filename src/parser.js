@@ -191,7 +191,7 @@ var AssignStatement = seq(IDENT.skip(ASSIGN), Exp, AST('assign'));
 
 var FunctionStatement = seq(p.alt(IDENT, OPR), p.alt(TuplePattern, RoutePattern.map(r => AST('tuplePattern')([r]))), p.alt(ASSIGN.then(Exp), BlockExp), AST('functionDef'));
 
-var ImportStatement = IMPORT.then(sep1(DOT, IDENT).map(list => list.join('.'))).map(AST('import'));
+var ImportStatement = IMPORT.then(p.alt(STR, sep1(DOT, IDENT).map(list => list.join('.')))).map(AST('import'));
 
 var ExportStatement = EXPORT.then(Exp).map(AST('export'));
 

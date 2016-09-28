@@ -89,10 +89,10 @@ module.exports = {
 	{
 		done(scope);
 	}),
-	sleep(delay, value)
+	sleep: util.async(function(args, done)
 	{
-		setTimeout(() => done(value), delay);
-	},
+		setTimeout(() => done(args[1]), args[0]);
+	}),
 	Debug:
 	{
 		log()

@@ -1,17 +1,17 @@
 'use strict'
 
-var parser = require('./parser');
-
-var util = require('./util');
-
 var lens =
 {
+	util: require('./util'),
+	parser: require('./parser'),
 	lib: require('./lib'),
+	Environment: require('./env'),
+	Scope: require('./scope'),
 	parse(data)
 	{
 		data = String(data);
 		
-		var result = parser.parse(data);
+		var result = lens.parser.parse(data);
 		if(!result.status)
 		{
 			var nearby = data.substr(result.index.offset, 1);
@@ -30,7 +30,7 @@ var lens =
 				Object.assign(scope, env.lib || lens.lib, {
 					env,
 					ast: this.ast,
-					'import': util.async((args, done) => env.import(args[0], done)),
+					'import': lens.util.async((args, done) => env.import(args[0], done)),
 					'export': (value) => (exported = true) && (result = value),
 				});
 				
