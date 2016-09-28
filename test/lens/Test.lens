@@ -39,4 +39,4 @@ getData /abc/def/:s = s + 1
 // 	s = getData(/abc/def/5/6)
 // }.s
 
-export (1, 2, 3)[2]
+export (1, 2, 3).length

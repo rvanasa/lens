@@ -26,6 +26,10 @@ var Scope =
 		scope[baseSymbol] = Scope.getBase(parent);
 		return scope;
 	},
+	isTangent(scope)
+	{
+		return !!scope[baseSymbol];
+	},
 	getBase(scope)
 	{
 		return scope[baseSymbol] || scope;

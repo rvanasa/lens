@@ -480,7 +480,7 @@ var AST =
 
 function get(scope, id, done)
 {
-	if(!(id in scope))
+	if(!(id in scope || Scope.isTangent(scope)))
 	{
 		throw new Error('Unknown reference: ' + id);
 	}

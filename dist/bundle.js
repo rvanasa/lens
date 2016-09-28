@@ -1316,7 +1316,7 @@
 
 	function get(scope, id, done)
 	{
-		if(!(id in scope))
+		if(!(id in scope || Scope.isTangent(scope)))
 		{
 			throw new Error('Unknown reference: ' + id);
 		}
@@ -1728,6 +1728,10 @@
 			scope[baseSymbol] = Scope.getBase(parent);
 			return scope;
 		},
+		isTangent(scope)
+		{
+			return !!scope[baseSymbol];
+		},
 		getBase(scope)
 		{
 			return scope[baseSymbol] || scope;
@@ -1869,6 +1873,7 @@
 		// 	},
 		// },
 		JSON: JSON,
+		Math: Math,
 	}
 
 /***/ }

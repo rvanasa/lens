@@ -115,4 +115,5 @@ module.exports = {
 	// 	},
 	// },
 	JSON: JSON,
+	Math: Math,
 }
