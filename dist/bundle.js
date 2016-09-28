@@ -90,9 +90,9 @@
 				}
 			}
 		},
-		eval(data, context, done)
+		eval(data, env, done)
 		{
-			return lens.parse(data).eval(context, done);
+			return lens.parse(data).eval(env, done);
 		},
 	};
 
@@ -266,7 +266,7 @@
 			AnonymousExp
 		), sameLine.then(TupleListExp), AST('invoke'));
 		
-		exp = optNext(exp, surround(L_BRACKET, Exp, R_BRACKET), AST('target'));
+		exp = optNext(exp, surround(L_BRACKET, Exp, R_BRACKET), AST('indexer'));
 		
 		return optNext(exp, DOT.then(TargetExp), AST('target'));
 	});
@@ -904,6 +904,19 @@
 					base.eval(scope, (value) =>
 					{
 						exp.eval(Scope.createTangent(scope, value), done);
+					});
+				}
+			};
+		},
+		indexer(base, exp)
+		{
+			return {
+				base, exp,
+				eval(scope, done)
+				{
+					base.eval(scope, (value) =>
+					{
+						exp.eval(Scope.createTangent(scope, value), (index) => done(value[index]));
 					});
 				}
 			};
@@ -1830,7 +1843,7 @@
 			log(args, done)
 			{
 				console.log.apply(null, args);
-				done(args[0]);
+				done(args.length > 1 ? args : args[0]);
 			},
 			break(args, done, scope)
 			{

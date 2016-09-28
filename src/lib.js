@@ -97,7 +97,7 @@ module.exports = {
 		log(args, done)
 		{
 			console.log.apply(null, args);
-			done(args[0]);
+			done(args.length > 1 ? args : args[0]);
 		},
 		break(args, done, scope)
 		{

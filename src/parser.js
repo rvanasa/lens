@@ -162,7 +162,7 @@ var TargetExp = p.lazy('TargetExp', () =>
 		AnonymousExp
 	), sameLine.then(TupleListExp), AST('invoke'));
 	
-	exp = optNext(exp, surround(L_BRACKET, Exp, R_BRACKET), AST('target'));
+	exp = optNext(exp, surround(L_BRACKET, Exp, R_BRACKET), AST('indexer'));
 	
 	return optNext(exp, DOT.then(TargetExp), AST('target'));
 });

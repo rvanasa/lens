@@ -38,9 +38,9 @@ var lens =
 			}
 		}
 	},
-	eval(data, context, done)
+	eval(data, env, done)
 	{
-		return lens.parse(data).eval(context, done);
+		return lens.parse(data).eval(env, done);
 	},
 };
 

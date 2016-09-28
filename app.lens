@@ -1,3 +1,0 @@
-import console
-
-export 1 <> 5 ^ ['#' + @] ^ console.in ^^ +

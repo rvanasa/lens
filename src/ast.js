@@ -72,6 +72,19 @@ var AST =
 			}
 		};
 	},
+	indexer(base, exp)
+	{
+		return {
+			base, exp,
+			eval(scope, done)
+			{
+				base.eval(scope, (value) =>
+				{
+					exp.eval(Scope.createTangent(scope, value), (index) => done(value[index]));
+				});
+			}
+		};
+	},
 	invoke(target, arg)
 	{
 		return {
