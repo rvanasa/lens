@@ -97,7 +97,7 @@ var AST =
 					{
 						throw new Error('Cannot invoke ' + (target.id ? '`' + target.id + '` ' : '') + ' of value ' + JSON.stringify(fn));
 					}
-					var self = 'target' in target ? target.target : undefined;
+					var self = Scope.getTarget(scope);
 					arg.eval(Scope.getBase(scope), (value) =>
 					{
 						if(fn.pattern && !fn.pattern.validate(scope, value))
@@ -116,7 +116,16 @@ var AST =
 			body,
 			eval(scope, done)
 			{
-				body.eval(Scope.create(scope), done);
+				var exported = false;
+				var exportValue;
+				
+				var child = Scope.create(scope);
+				child.export = function(value)
+				{
+					exported = true;
+					exportValue = value;
+				}
+				body.eval(child, (value) => done(exported ? exportValue : value));
 			}
 		};
 	},

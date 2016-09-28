@@ -79,7 +79,7 @@
 					var exported = false;
 					var result = undefined;
 					
-					Object.assign(scope, lens.lib, {
+					Object.assign(scope, env.lib || lens.lib, {
 						env,
 						ast: this.ast,
 						'import': util.async((args, done) => env.import(args[0], done)),
@@ -933,7 +933,7 @@
 						{
 							throw new Error('Cannot invoke ' + (target.id ? '`' + target.id + '` ' : '') + ' of value ' + JSON.stringify(fn));
 						}
-						var self = 'target' in target ? target.target : undefined;
+						var self = Scope.getTarget(scope);
 						arg.eval(Scope.getBase(scope), (value) =>
 						{
 							if(fn.pattern && !fn.pattern.validate(scope, value))
@@ -952,7 +952,16 @@
 				body,
 				eval(scope, done)
 				{
-					body.eval(Scope.create(scope), done);
+					var exported = false;
+					var exportValue;
+					
+					var child = Scope.create(scope);
+					child.export = function(value)
+					{
+						exported = true;
+						exportValue = value;
+					}
+					body.eval(child, (value) => done(exported ? exportValue : value));
 				}
 			};
 		},
@@ -1704,6 +1713,7 @@
 
 	var parentSymbol = Symbol();
 	var baseSymbol = Symbol();
+	var targetSymbol = Symbol();
 
 	var Scope =
 	{
@@ -1719,22 +1729,15 @@
 		},
 		createTangent(parent, value)
 		{
-			var scope = Object.create(null);
-			for(var key in value)
-			{
-				scope[key] = value[key];
-			}
+			var scope = Object.create(value);
 			scope[parentSymbol] = parent;
 			scope[baseSymbol] = Scope.getBase(parent);
+			scope[targetSymbol] = value;
 			return scope;
 		},
 		isTangent(scope)
 		{
 			return !!scope[baseSymbol];
-		},
-		getBase(scope)
-		{
-			return scope[baseSymbol] || scope;
 		},
 		getParent(scope)
 		{
@@ -1747,6 +1750,14 @@
 				scope = scope[parentSymbol];
 			}
 			return scope;
+		},
+		getBase(scope)
+		{
+			return scope[baseSymbol] || scope;
+		},
+		getTarget(scope)
+		{
+			return scope[targetSymbol];
 		},
 	};
 

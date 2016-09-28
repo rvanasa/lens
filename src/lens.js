@@ -27,7 +27,7 @@ var lens =
 				var exported = false;
 				var result = undefined;
 				
-				Object.assign(scope, lens.lib, {
+				Object.assign(scope, env.lib || lens.lib, {
 					env,
 					ast: this.ast,
 					'import': util.async((args, done) => env.import(args[0], done)),

@@ -2,6 +2,7 @@
 
 var parentSymbol = Symbol();
 var baseSymbol = Symbol();
+var targetSymbol = Symbol();
 
 var Scope =
 {
@@ -17,22 +18,15 @@ var Scope =
 	},
 	createTangent(parent, value)
 	{
-		var scope = Object.create(null);
-		for(var key in value)
-		{
-			scope[key] = value[key];
-		}
+		var scope = Object.create(value);
 		scope[parentSymbol] = parent;
 		scope[baseSymbol] = Scope.getBase(parent);
+		scope[targetSymbol] = value;
 		return scope;
 	},
 	isTangent(scope)
 	{
 		return !!scope[baseSymbol];
-	},
-	getBase(scope)
-	{
-		return scope[baseSymbol] || scope;
 	},
 	getParent(scope)
 	{
@@ -45,6 +39,14 @@ var Scope =
 			scope = scope[parentSymbol];
 		}
 		return scope;
+	},
+	getBase(scope)
+	{
+		return scope[baseSymbol] || scope;
+	},
+	getTarget(scope)
+	{
+		return scope[targetSymbol];
 	},
 };
 
