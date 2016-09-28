@@ -2,12 +2,21 @@
 
 module.exports =
 {
-	sync(handler)
+	invoke(fn, self, args, done, scope)
 	{
-		return function(args, done, scope)
+		if(fn.async)
 		{
-			done(handler.apply(this, args));
+			fn.call(self, args, done, scope);
 		}
+		else
+		{
+			done(fn.apply(self, args));
+		}
+	},
+	async(fn)
+	{
+		fn.async = true;
+		return fn;
 	},
 	all(values, mapper, callback)
 	{

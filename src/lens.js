@@ -30,8 +30,8 @@ var lens =
 				Object.assign(scope, lens.lib, {
 					env,
 					ast: this.ast,
-					'import': (args, done) => env.import(args[0], done),
-					'export': util.sync((value) => (exported = true) && (result = value)),
+					'import': util.async((args, done) => env.import(args[0], done)),
+					'export': (value) => (exported = true) && (result = value),
 				});
 				
 				this.ast.eval(scope, (value) => done(exported ? result : value));

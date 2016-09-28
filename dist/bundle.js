@@ -82,8 +82,8 @@
 					Object.assign(scope, lens.lib, {
 						env,
 						ast: this.ast,
-						'import': (args, done) => env.import(args[0], done),
-						'export': util.sync((value) => (exported = true) && (result = value)),
+						'import': util.async((args, done) => env.import(args[0], done)),
+						'export': (value) => (exported = true) && (result = value),
 					});
 					
 					this.ast.eval(scope, (value) => done(exported ? result : value));
@@ -287,7 +287,7 @@
 
 	var ClosureExp = surround(L_BRACKET, Exp, R_BRACKET).map(AST('closure'));
 
-	var ConditionExp = seq(IF.then(Exp), Exp, opt(ELSE.then(Exp)), AST('condition'));
+	var ConditionExp = seq(IF.then(Exp), Exp, opt(ELSE.then(Exp)), AST('conditional'));
 
 	var AnonymousExp = seq(p.alt(AT_MARK, POUND_SYMBOL), opt(p.alt(IDENT, STR, NUM)), AST('anonymous'));
 
@@ -885,13 +885,13 @@
 				exp,
 				eval(scope, done)
 				{
-					done(function(args, done)
+					done(util.async(function(args, done)
 					{
 						var fnScope = Scope.create(scope);
 						fnScope['@'] = args[0];
 						fnScope['#'] = args[1];
 						exp.eval(fnScope, done);
-					});
+					}));
 				}
 			};
 		},
@@ -940,7 +940,7 @@
 							{
 								throw new Error(`Invalid argument: ${renderValue(value)} ; expecting ${fn.pattern}`);
 							}
-							fn.call(self, value, done, scope);
+							util.invoke(fn, self, value, done, scope);
 						});
 					});
 				}
@@ -980,7 +980,7 @@
 				}
 			};
 		},
-		condition(condition, trueExp, falseExp)
+		conditional(condition, trueExp, falseExp)
 		{
 			return {
 				condition, trueExp, falseExp,
@@ -1070,17 +1070,16 @@
 				id, pattern, exp,
 				eval(scope, done)
 				{
-					var fn = function(args, done)
+					var fn = util.async(function(args, done)
 					{
 						var fnScope = Scope.create(scope);
-						fnScope.export = (exportArgs, exportDone) =>
+						fnScope.export = (exportArgs, done) =>
 						{
-							exportDone(exportArgs[0]);
 							done(exportArgs[0]);
 						}
 						pattern.setup(fnScope, args);
 						exp.eval(fnScope, done);
-					};
+					});
 					fn.pattern = pattern;
 					
 					if(id)
@@ -1089,17 +1088,17 @@
 						{
 							var first = scope[id];
 							var next = fn;
-							fn = function(args, done, scope)
+							fn = util.async(function(args, done, scope)
 							{
 								if(first.pattern && first.pattern.validate(scope, args))
 								{
-									first(args, done, scope);
+									util.invoke(first, this, args, done, scope);
 								}
 								else
 								{
-									next(args, done, scope);
+									util.invoke(next, this, args, done, scope);
 								}
-							}
+							})
 							fn.pattern = AST.orPattern(first.pattern, next.pattern);
 						}
 						add(scope, id, fn);
@@ -1114,7 +1113,7 @@
 				id,
 				eval(scope, done)
 				{
-					scope.import([id], (value) =>
+					util.invoke(scope.import, scope, [id], (value) =>
 					{
 						add(scope, id, value);
 						done(value);
@@ -1130,7 +1129,7 @@
 				{
 					exp.eval(scope, (value) =>
 					{
-						scope.export([value], done);
+						util.invoke(scope.export, scope, [value], done);
 					});
 				}
 			};
@@ -1653,12 +1652,21 @@
 
 	module.exports =
 	{
-		sync(handler)
+		invoke(fn, self, args, done, scope)
 		{
-			return function(args, done, scope)
+			if(fn.async)
 			{
-				done(handler.apply(this, args));
+				fn.call(self, args, done, scope);
 			}
+			else
+			{
+				done(fn.apply(self, args));
+			}
+		},
+		async(fn)
+		{
+			fn.async = true;
+			return fn;
 		},
 		all(values, mapper, callback)
 		{
@@ -1751,56 +1759,54 @@
 	// var request = require('request');
 
 	module.exports = {
-		'!': util.sync((v) => !v),
-		'==': util.sync((a, b) => a === b),
-		'!=': util.sync((a, b) => a !== b),
-		'>': util.sync((a, b) => a > b),
-		'<': util.sync((a, b) => a < b),
-		'>=': util.sync((a, b) => a >= b),
-		'<=': util.sync((a, b) => a <= b),
-		'+': function(args, done) {done(args.length == 1 ? +args[0] : args[0] + args[1])},
-		'-': function(args, done) {done(args.length == 1 ? -args[0] : args[0] - args[1])},
-		'*': util.sync((a, b) => a * b),
-		'/': util.sync((a, b) => a / b),
-		'%': function(args, done, scope)
+		'!': (v) => !v,
+		'==': (a, b) => a === b,
+		'!=': (a, b) => a !== b,
+		'>': (a, b) => a > b,
+		'<': (a, b) => a < b,
+		'>=': (a, b) => a >= b,
+		'<=': (a, b) => a <= b,
+		'+'(a, b) {return arguments.length == 1 ? +a : a + b},
+		'-'(a, b) {return arguments.length == 1 ? -b : b - b},
+		'*': (a, b) => a * b,
+		'/': (a, b) => a / b,
+		'%': util.async(function(args, done, scope)
 		{
 			var a = args[0], b = args[1];
 			if(typeof b === 'function')
 			{
-				b.call(a, [a], done, scope);
+				util.invoke(b, a, [a], done, scope);
 			}
 			else
 			{
 				done(a % b);
 			}
-		},
-		'<>': function(args, done)
+		}),
+		'<>'(a, b)
 		{
-			var a = args[0], b = args[1];
 			var list = [];
 			for(var i = a; i <= b; i++)
 			{
 				list.push(i);
 			}
-			done(list);
+			return list;
 		},
-		'>>': function(args, done)
+		'>>'(a, b)
 		{
-			var a = args[0], b = args[1];
 			var list = [];
 			for(var i = a; i < b; i++)
 			{
 				list.push(i);
 			}
-			done(list);
+			return list;
 		},
-		'^': function(args, done, scope)
+		'^': util.async(function(args, done, scope)
 		{
 			var target = args[0], transform = args[1];
 			var i = 0;
 			util.all(target, (value, done) => transform([value, i++], done), done);
-		},
-		'~': function(args, done, scope)
+		}),
+		'~': util.async(function(args, done, scope)
 		{
 			var target = args[0], transform = args[1];
 			var i = 0;
@@ -1816,8 +1822,8 @@
 				}
 				done(list);
 			});
-		},
-		'^^': function(args, done, scope)
+		}),
+		'^^': util.async(function(args, done, scope)
 		{
 			var target = args[0], transform = args[1];
 			var i = 0;
@@ -1829,27 +1835,27 @@
 				
 				transform([value, target[i]], reduce);
 			}
-		},
-		scope(args, done, scope)
+		}),
+		scope: util.async(function(args, done, scope)
 		{
 			done(scope);
-		},
-		sleep(args, done)
+		}),
+		sleep(delay, value)
 		{
-			setTimeout(() => done(args[1]), args[0]);
+			setTimeout(() => done(value), delay);
 		},
 		Debug:
 		{
-			log(args, done)
+			log()
 			{
-				console.log.apply(null, args);
-				done(args.length > 1 ? args : args[0]);
+				console.log.apply(console, arguments);
+				return arguments[0];
 			},
-			break(args, done, scope)
+			break: util.async(function(args, done, scope)
 			{
 				console.log.apply(null, args);
 				console.log('Scope: ', scope);
-			},
+			}),
 		},
 		// HTTP:
 		// {
@@ -1862,13 +1868,7 @@
 		// 		});
 		// 	},
 		// },
-		JSON:
-		{
-			parse(args, done)
-			{
-				done(JSON.parse.apply(this, args));
-			},
-		},
+		JSON: JSON,
 	}
 
 /***/ }

@@ -5,56 +5,54 @@ var util = require('./util');
 // var request = require('request');
 
 module.exports = {
-	'!': util.sync((v) => !v),
-	'==': util.sync((a, b) => a === b),
-	'!=': util.sync((a, b) => a !== b),
-	'>': util.sync((a, b) => a > b),
-	'<': util.sync((a, b) => a < b),
-	'>=': util.sync((a, b) => a >= b),
-	'<=': util.sync((a, b) => a <= b),
-	'+': function(args, done) {done(args.length == 1 ? +args[0] : args[0] + args[1])},
-	'-': function(args, done) {done(args.length == 1 ? -args[0] : args[0] - args[1])},
-	'*': util.sync((a, b) => a * b),
-	'/': util.sync((a, b) => a / b),
-	'%': function(args, done, scope)
+	'!': (v) => !v,
+	'==': (a, b) => a === b,
+	'!=': (a, b) => a !== b,
+	'>': (a, b) => a > b,
+	'<': (a, b) => a < b,
+	'>=': (a, b) => a >= b,
+	'<=': (a, b) => a <= b,
+	'+'(a, b) {return arguments.length == 1 ? +a : a + b},
+	'-'(a, b) {return arguments.length == 1 ? -b : b - b},
+	'*': (a, b) => a * b,
+	'/': (a, b) => a / b,
+	'%': util.async(function(args, done, scope)
 	{
 		var a = args[0], b = args[1];
 		if(typeof b === 'function')
 		{
-			b.call(a, [a], done, scope);
+			util.invoke(b, a, [a], done, scope);
 		}
 		else
 		{
 			done(a % b);
 		}
-	},
-	'<>': function(args, done)
+	}),
+	'<>'(a, b)
 	{
-		var a = args[0], b = args[1];
 		var list = [];
 		for(var i = a; i <= b; i++)
 		{
 			list.push(i);
 		}
-		done(list);
+		return list;
 	},
-	'>>': function(args, done)
+	'>>'(a, b)
 	{
-		var a = args[0], b = args[1];
 		var list = [];
 		for(var i = a; i < b; i++)
 		{
 			list.push(i);
 		}
-		done(list);
+		return list;
 	},
-	'^': function(args, done, scope)
+	'^': util.async(function(args, done, scope)
 	{
 		var target = args[0], transform = args[1];
 		var i = 0;
 		util.all(target, (value, done) => transform([value, i++], done), done);
-	},
-	'~': function(args, done, scope)
+	}),
+	'~': util.async(function(args, done, scope)
 	{
 		var target = args[0], transform = args[1];
 		var i = 0;
@@ -70,8 +68,8 @@ module.exports = {
 			}
 			done(list);
 		});
-	},
-	'^^': function(args, done, scope)
+	}),
+	'^^': util.async(function(args, done, scope)
 	{
 		var target = args[0], transform = args[1];
 		var i = 0;
@@ -83,27 +81,27 @@ module.exports = {
 			
 			transform([value, target[i]], reduce);
 		}
-	},
-	scope(args, done, scope)
+	}),
+	scope: util.async(function(args, done, scope)
 	{
 		done(scope);
-	},
-	sleep(args, done)
+	}),
+	sleep(delay, value)
 	{
-		setTimeout(() => done(args[1]), args[0]);
+		setTimeout(() => done(value), delay);
 	},
 	Debug:
 	{
-		log(args, done)
+		log()
 		{
-			console.log.apply(null, args);
-			done(args.length > 1 ? args : args[0]);
+			console.log.apply(console, arguments);
+			return arguments[0];
 		},
-		break(args, done, scope)
+		break: util.async(function(args, done, scope)
 		{
 			console.log.apply(null, args);
 			console.log('Scope: ', scope);
-		},
+		}),
 	},
 	// HTTP:
 	// {
@@ -116,11 +114,5 @@ module.exports = {
 	// 		});
 	// 	},
 	// },
-	JSON:
-	{
-		parse(args, done)
-		{
-			done(JSON.parse.apply(this, args));
-		},
-	},
+	JSON: JSON,
 }

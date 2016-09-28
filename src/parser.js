@@ -183,7 +183,7 @@ var LambdaExp = seq(p.succeed(null), TuplePattern.skip(ARROW), Exp, AST('functio
 
 var ClosureExp = surround(L_BRACKET, Exp, R_BRACKET).map(AST('closure'));
 
-var ConditionExp = seq(IF.then(Exp), Exp, opt(ELSE.then(Exp)), AST('condition'));
+var ConditionExp = seq(IF.then(Exp), Exp, opt(ELSE.then(Exp)), AST('conditional'));
 
 var AnonymousExp = seq(p.alt(AT_MARK, POUND_SYMBOL), opt(p.alt(IDENT, STR, NUM)), AST('anonymous'));
 

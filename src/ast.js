@@ -49,13 +49,13 @@ var AST =
 			exp,
 			eval(scope, done)
 			{
-				done(function(args, done)
+				done(util.async(function(args, done)
 				{
 					var fnScope = Scope.create(scope);
 					fnScope['@'] = args[0];
 					fnScope['#'] = args[1];
 					exp.eval(fnScope, done);
-				});
+				}));
 			}
 		};
 	},
@@ -104,7 +104,7 @@ var AST =
 						{
 							throw new Error(`Invalid argument: ${renderValue(value)} ; expecting ${fn.pattern}`);
 						}
-						fn.call(self, value, done, scope);
+						util.invoke(fn, self, value, done, scope);
 					});
 				});
 			}
@@ -144,7 +144,7 @@ var AST =
 			}
 		};
 	},
-	condition(condition, trueExp, falseExp)
+	conditional(condition, trueExp, falseExp)
 	{
 		return {
 			condition, trueExp, falseExp,
@@ -234,17 +234,16 @@ var AST =
 			id, pattern, exp,
 			eval(scope, done)
 			{
-				var fn = function(args, done)
+				var fn = util.async(function(args, done)
 				{
 					var fnScope = Scope.create(scope);
-					fnScope.export = (exportArgs, exportDone) =>
+					fnScope.export = (exportArgs, done) =>
 					{
-						exportDone(exportArgs[0]);
 						done(exportArgs[0]);
 					}
 					pattern.setup(fnScope, args);
 					exp.eval(fnScope, done);
-				};
+				});
 				fn.pattern = pattern;
 				
 				if(id)
@@ -253,17 +252,17 @@ var AST =
 					{
 						var first = scope[id];
 						var next = fn;
-						fn = function(args, done, scope)
+						fn = util.async(function(args, done, scope)
 						{
 							if(first.pattern && first.pattern.validate(scope, args))
 							{
-								first(args, done, scope);
+								util.invoke(first, this, args, done, scope);
 							}
 							else
 							{
-								next(args, done, scope);
+								util.invoke(next, this, args, done, scope);
 							}
-						}
+						})
 						fn.pattern = AST.orPattern(first.pattern, next.pattern);
 					}
 					add(scope, id, fn);
@@ -278,7 +277,7 @@ var AST =
 			id,
 			eval(scope, done)
 			{
-				scope.import([id], (value) =>
+				util.invoke(scope.import, scope, [id], (value) =>
 				{
 					add(scope, id, value);
 					done(value);
@@ -294,7 +293,7 @@ var AST =
 			{
 				exp.eval(scope, (value) =>
 				{
-					scope.export([value], done);
+					util.invoke(scope.export, scope, [value], done);
 				});
 			}
 		};
