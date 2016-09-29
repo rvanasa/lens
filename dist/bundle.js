@@ -1024,7 +1024,7 @@
 				list,
 				eval(scope, done)
 				{
-					var result = {};
+					scope['this'] = {};
 					
 					evalList(scope, list, (values) =>
 					{
@@ -1034,10 +1034,10 @@
 							if('id' in ast)
 							{
 								var value = values[i];
-								result[ast.id] = value;
+								scope['this'][ast.id] = value;
 							}
 						}
-						done(result);
+						done(scope['this']);
 					})
 				}
 			};
@@ -1888,8 +1888,7 @@
 		// 		});
 		// 	},
 		// },
-		JSON: JSON,
-		Math: Math,
+		Object, JSON, Math,
 	}
 
 /***/ }

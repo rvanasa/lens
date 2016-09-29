@@ -117,6 +117,5 @@ module.exports = {
 	// 		});
 	// 	},
 	// },
-	JSON: JSON,
-	Math: Math,
+	Object, JSON, Math,
 }
