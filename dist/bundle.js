@@ -1206,7 +1206,7 @@
 				},
 				toString()
 				{
-					return '<' + id + '>';
+					return id;
 				}
 			};
 		},
@@ -1239,7 +1239,7 @@
 				},
 				toString()
 				{
-					return literal;
+					return JSON.stringify(literal);
 				}
 			};
 		},

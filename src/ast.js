@@ -317,7 +317,7 @@ var AST =
 			},
 			toString()
 			{
-				return '<' + id + '>';
+				return id;
 			}
 		};
 	},
@@ -350,7 +350,7 @@ var AST =
 			},
 			toString()
 			{
-				return literal;
+				return JSON.stringify(literal);
 			}
 		};
 	},
