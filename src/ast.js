@@ -95,7 +95,7 @@ var AST =
 				{
 					if(typeof fn !== 'function')
 					{
-						throw new Error('Cannot invoke ' + (target.id ? '`' + target.id + '` ' : '') + ' of value ' + JSON.stringify(fn));
+						throw new Error('Cannot invoke ' + renderValue(fn) + (target.id ? ' `' + target.id + '`' : ''));
 					}
 					var self = Scope.getTarget(scope);
 					arg.eval(Scope.getBase(scope), (value) =>
@@ -135,7 +135,8 @@ var AST =
 			list,
 			eval(scope, done)
 			{
-				var result = scope['this'] = {};
+				var result = {};
+				scope['this'] = result;
 				
 				evalList(scope, list, (values) =>
 				{
@@ -246,10 +247,6 @@ var AST =
 				var fn = util.async(function(args, done)
 				{
 					var fnScope = Scope.create(scope);
-					fnScope.export = (exportArgs, done) =>
-					{
-						done(exportArgs[0]);
-					}
 					pattern.setup(fnScope, args);
 					exp.eval(fnScope, done);
 				});
@@ -318,7 +315,7 @@ var AST =
 			},
 			setup(scope, value)
 			{
-				scope[id] = value;
+				add(scope, id, value);
 			},
 			toString()
 			{
@@ -478,7 +475,7 @@ var AST =
 			},
 			setup(scope, value)
 			{
-				scope[id] = value;
+				add(scope, id, value)
 			},
 			toString()
 			{
@@ -525,6 +522,10 @@ function renderValue(value)
 	else if(Array.isArray(value))
 	{
 		return '(' + value.join(', ') + ')';
+	}
+	else if(type === 'function')
+	{
+		return (value.name || 'function') + '(..)';
 	}
 	else if(type === 'string')
 	{
