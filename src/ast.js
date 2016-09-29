@@ -136,8 +136,6 @@ var AST =
 			eval(scope, done)
 			{
 				var result = {};
-				scope['this'] = result;
-				
 				evalList(scope, list, (values) =>
 				{
 					for(var i = 0; i < values.length; i++)

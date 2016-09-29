@@ -197,4 +197,4 @@ var ImportStatement = seq(IMPORT.then(p.alt(STR, sep1(DOT, IDENT))), opt(AS.then
 
 var ExportStatement = EXPORT.then(Exp).map(AST('export'));
 
-module.exports = MultiExp.skip(ignore);
+module.exports = p.alt(MultiExp, Exp).skip(ignore);

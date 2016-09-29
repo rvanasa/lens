@@ -352,7 +352,7 @@
 
 	var ExportStatement = EXPORT.then(Exp).map(AST('export'));
 
-	module.exports = MultiExp.skip(ignore);
+	module.exports = p.alt(MultiExp, Exp).skip(ignore);
 
 /***/ },
 /* 4 */
@@ -1025,8 +1025,6 @@
 				eval(scope, done)
 				{
 					var result = {};
-					scope['this'] = result;
-					
 					evalList(scope, list, (values) =>
 					{
 						for(var i = 0; i < values.length; i++)
