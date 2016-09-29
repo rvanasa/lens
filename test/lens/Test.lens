@@ -1,9 +1,9 @@
 
 obj =
 {
-    a = 1
-    b = 2
-    c = 3
+    ab = 1
+    cd = 2
+    ef = 3
 }
 
-export obj % Object.keys
+export obj % Object.keys ^^ +
