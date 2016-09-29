@@ -16,6 +16,8 @@ class Environment
 	
 	resolve(id)
 	{
+		if(typeof id !== 'string') id = id.join('/');
+		
 		return path.resolve(this.path, id.replace('.', '/') + '.lens');
 	}
 	

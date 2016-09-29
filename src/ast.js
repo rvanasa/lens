@@ -280,14 +280,15 @@ var AST =
 			}
 		};
 	},
-	import(id)
+	import(path, alias)
 	{
 		return {
-			id,
+			path, alias,
 			eval(scope, done)
 			{
-				util.invoke(scope.import, scope, [id], (value) =>
+				util.invoke(scope.import, scope, [path], (value) =>
 				{
+					var id = alias || (typeof path === 'string' ? path : path[path.length - 1]);
 					add(scope, id, value);
 					done(value);
 				});

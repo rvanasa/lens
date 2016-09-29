@@ -41,7 +41,7 @@ var ignore = p.alt(p.string('//').then(p.regex(/.*$/m)), p.whitespace).many();
 var IDENT = lexeme(p.regex(/[_A-Za-z$][_A-Za-z$0-9]*/));
 var OPR = lexeme(p.regex(/[+\-*/<>^~%!?&|]+=*|==/));
 var STR = lexeme(p.regex(/'([^'\\]*(\\.[^'\\]*)*)'|"([^"\\]*(\\.[^"\\]*)*)"/)).map(s => s.substring(1, s.length - 1));
-var NUM = lexeme(p.regex(/-?[0-9]+(\.[0-9]+)?/)).map(Number);
+var NUM = lexeme(p.regex(/-?[0-9]+|[0-9]*(\.[0-9]+)?/)).map(Number);
 var TRUE = keyword('true').result(true);
 var FALSE = keyword('false').result(false);
 var NULL = keyword('null').result(null);
@@ -67,6 +67,8 @@ var POUND_SYMBOL = keyword('#');
 
 var IMPORT = keyword('import');
 var EXPORT = keyword('export');
+
+var AS = keyword('as');
 
 var IF = keyword('if');
 var ELSE = keyword('else');
@@ -191,8 +193,8 @@ var AssignStatement = seq(IDENT.skip(ASSIGN), Exp, AST('assign'));
 
 var FunctionStatement = seq(p.alt(IDENT, OPR), p.alt(TuplePattern, RoutePattern.map(r => AST('tuplePattern')([r]))), p.alt(ASSIGN.then(Exp), BlockExp), AST('functionDef'));
 
-var ImportStatement = IMPORT.then(p.alt(STR, sep1(DOT, IDENT).map(list => list.join('.')))).map(AST('import'));
+var ImportStatement = seq(IMPORT.then(p.alt(STR, sep1(DOT, IDENT))), opt(AS.then(IDENT)), AST('import'));
 
-var ExportStatement = EXPORT.then(Exp).map(AST('export'));
+var ExportStatement = seq(EXPORT.then(Exp), AST('export'));
 
 module.exports = MultiExp.skip(ignore);
