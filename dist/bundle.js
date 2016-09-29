@@ -1774,16 +1774,6 @@
 
 	// var request = require('request');
 
-	function repeat(rep, n)
-	{
-		var str = '';
-		while(--n >= 0)
-		{
-			str += rep;
-		}
-		return str;
-	}
-
 	module.exports = {
 		'!': (v) => !v,
 		'==': (a, b) => a === b,
@@ -1796,7 +1786,7 @@
 		'||': (a, b) => a || b,
 		'+'(a, b) {return arguments.length == 1 ? +a : a + b},
 		'-'(a, b) {return arguments.length == 1 ? -b : b - b},
-		'*': (a, b) => typeof a === 'string' ? repeat(a, b) : typeof b === 'string' ? repeat(b, a) : a * b,
+		'*': (a, b) => a * b,
 		'/': (a, b) => a / b,
 		'%': util.async(function(args, done, scope)
 		{
