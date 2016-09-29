@@ -16,13 +16,13 @@ class Environment
 	
 	resolve(id)
 	{
-		if(typeof id !== 'string') id = id.join('/');
-		
 		return path.resolve(this.path, id.replace('.', '/') + '.lens');
 	}
 	
 	import(id, done)
 	{
+		if(typeof id !== 'string') id = id.join('.');
+		
 		var resource = this.imports[id];
 		if(!resource)
 		{
