@@ -79,7 +79,7 @@ module.exports = {
 			i++;
 			if(i >= target.length) return done(value);
 			
-			transform([value, target[i]], reduce);
+			util.invoke(transform, value, [value, target[i]], reduce);
 		}
 	}),
 	scope: util.async(function(args, done, scope)
