@@ -22,7 +22,7 @@ env.imports['console'] =
 	}),
 }
 
-env.import('test/lens/Test', (config) =>
+env.import('test.lens.Test', (config) =>
 {
 	console.log('->', config);
 	

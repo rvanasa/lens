@@ -135,7 +135,7 @@ var AST =
 			list,
 			eval(scope, done)
 			{
-				scope['this'] = {};
+				var result = scope['this'] = {};
 				
 				evalList(scope, list, (values) =>
 				{
@@ -145,10 +145,10 @@ var AST =
 						if('id' in ast)
 						{
 							var value = values[i];
-							scope['this'][ast.id] = value;
+							result[ast.id] = value;
 						}
 					}
-					done(scope['this']);
+					done(result);
 				})
 			}
 		};

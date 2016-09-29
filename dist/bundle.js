@@ -196,7 +196,7 @@
 	var IDENT = lexeme(p.regex(/[_A-Za-z$][_A-Za-z$0-9]*/));
 	var OPR = lexeme(p.regex(/[+\-*/<>^~%!?&|]+=*|==/));
 	var STR = lexeme(p.regex(/'([^'\\]*(\\.[^'\\]*)*)'|"([^"\\]*(\\.[^"\\]*)*)"/)).map(s => s.substring(1, s.length - 1));
-	var NUM = lexeme(p.regex(/-?[0-9]+|[0-9]*(\.[0-9]+)?/)).map(Number);
+	var NUM = lexeme(p.regex(/-?([0-9]+|[0-9]*\.[0-9]+)/)).map(Number);
 	var TRUE = keyword('true').result(true);
 	var FALSE = keyword('false').result(false);
 	var NULL = keyword('null').result(null);
@@ -350,7 +350,7 @@
 
 	var ImportStatement = seq(IMPORT.then(p.alt(STR, sep1(DOT, IDENT))), opt(AS.then(IDENT)), AST('import'));
 
-	var ExportStatement = seq(EXPORT.then(Exp), AST('export'));
+	var ExportStatement = EXPORT.then(Exp).map(AST('export'));
 
 	module.exports = MultiExp.skip(ignore);
 
@@ -1024,7 +1024,7 @@
 				list,
 				eval(scope, done)
 				{
-					scope['this'] = {};
+					var result = scope['this'] = {};
 					
 					evalList(scope, list, (values) =>
 					{
@@ -1034,10 +1034,10 @@
 							if('id' in ast)
 							{
 								var value = values[i];
-								scope['this'][ast.id] = value;
+								result[ast.id] = value;
 							}
 						}
-						done(scope['this']);
+						done(result);
 					})
 				}
 			};
@@ -1776,9 +1776,6 @@
 	// var request = require('request');
 
 	module.exports = {
-		true: true,
-		false: false,
-		null: null,
 		'!': (v) => !v,
 		'==': (a, b) => a === b,
 		'!=': (a, b) => a !== b,

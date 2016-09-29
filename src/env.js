@@ -16,7 +16,7 @@ class Environment
 	
 	resolve(id)
 	{
-		return path.resolve(this.path, id.replace('.', '/') + '.lens');
+		return path.resolve(this.path, id.replace(/\./g, '/') + '.lens');
 	}
 	
 	import(id, done)

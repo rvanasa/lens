@@ -5,9 +5,6 @@ var util = require('./util');
 // var request = require('request');
 
 module.exports = {
-	true: true,
-	false: false,
-	null: null,
 	'!': (v) => !v,
 	'==': (a, b) => a === b,
 	'!=': (a, b) => a !== b,
