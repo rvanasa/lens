@@ -80,7 +80,7 @@ var AST =
 			{
 				base.eval(scope, (value) =>
 				{
-					exp.eval(Scope.createTangent(scope, value), (index) => done(value[index]));
+					exp.eval(Scope.createTangent(Scope.getBase(scope), value), (index) => done(value[index]));
 				});
 			}
 		};
