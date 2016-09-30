@@ -969,7 +969,7 @@
 				{
 					base.eval(scope, (value) =>
 					{
-						exp.eval(Scope.createTangent(Scope.getBase(scope), value), (index) => done(value[index]));
+						exp.eval(scope, (index) => done(value[index]));
 					});
 				}
 			};
