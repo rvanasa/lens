@@ -142,15 +142,17 @@ var TuplePattern = p.alt(
 
 var RoutePattern = p.lazy('RoutePattern', () => F_SLASH.then(sep1(F_SLASH, RoutePatternNode).or(p.succeed([]))).map(AST('routePattern')));
 
-var RoutePatternNode = p.lazy('RouteNode', () => p.alt(
+var RoutePatternNode = p.lazy('RoutePatternNode', () => p.alt(
 	COLON.then(IDENT).map(AST('variableRoutePattern')),
 	Literal.or(ROUTE_NODE).map(AST('basicRoutePattern'))
 ));
 
-var RouteExpNode = p.lazy('RouteNode', () => p.alt(
+var RouteExpNode = p.lazy('RouteExpNode', () => p.alt(
 	COLON.then(p.alt(TargetExp)),
 	Literal.or(ROUTE_NODE).map(AST('basicRouteExp'))
 ));
+
+var RouteLiteral = F_SLASH.then(sep1(F_SLASH, Literal.or(ROUTE_NODE)).or(p.succeed([])));
 
 var LiteralExp = Literal.map(AST('literal'));
 
@@ -193,7 +195,7 @@ var AssignStatement = seq(IDENT.skip(ASSIGN), Exp, AST('assign'));
 
 var FunctionStatement = seq(p.alt(IDENT, OPR), p.alt(TuplePattern, RoutePattern.map(r => AST('tuplePattern')([r]))), p.alt(ASSIGN.then(Exp), BlockExp), AST('functionDef'));
 
-var ImportStatement = seq(IMPORT.then(p.alt(STR, sep1(DOT, IDENT))), opt(AS.then(IDENT)), AST('import'));
+var ImportStatement = seq(IMPORT.then(p.alt(STR, RouteLiteral, sep1(DOT, IDENT))), opt(AS.then(IDENT)), AST('import'));
 
 var ExportStatement = EXPORT.then(Exp).map(AST('export'));
 
