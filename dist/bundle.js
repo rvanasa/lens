@@ -338,7 +338,7 @@
 
 	var RouteExp = F_SLASH.then(sep1(F_SLASH, RouteExpNode).or(p.succeed([]))).map(AST('route'));
 
-	var LambdaExp = seq(p.succeed(null), TuplePattern.skip(ARROW), Exp, AST('functionDef'));
+	var LambdaExp = seq(Pattern, TuplePattern.skip(ARROW), Exp, AST('functionDef'));
 
 	var ClosureExp = surround(L_BRACKET, Exp, R_BRACKET).map(AST('closure'));
 
