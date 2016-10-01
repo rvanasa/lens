@@ -1811,7 +1811,7 @@
 			}
 			return list;
 		},
-		'>>'(a, b)
+		'<<'(a, b)
 		{
 			var list = [];
 			for(var i = a; i < b; i++)
