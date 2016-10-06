@@ -57,7 +57,6 @@
 		util: __webpack_require__(2),
 		parser: __webpack_require__(3),
 		lib: __webpack_require__(9),
-		Scope: __webpack_require__(8),
 		parse(data)
 		{
 			data = String(data);
@@ -258,11 +257,11 @@
 		
 		// exp = optNext(exp, sameLine.then(TupleListExp.or(Exp)), AST('invoke'));
 		
+		var invoke = AST('invoke');
+		var tuple = AST('tuple');
+		
 		return p.seqMap(exp, p.seq(OPR.map(AST('opr')), exp).many(), (exp, tails) =>
 		{
-			var invoke = AST('invoke');
-			var tuple = AST('tuple');
-			
 			for(var i = 0; i < tails.length; i++)
 			{
 				var tail = tails[i];
@@ -354,7 +353,8 @@
 
 	var ExportStatement = EXPORT.then(Exp).map(AST('export'));
 
-	module.exports = p.alt(MultiExp, Exp).skip(ignore);
+	module.exports = MultiExp.skip(ignore).skip(p.custom((success, failure) => (stream, i) => i >= stream.length ? success(i) : failure(i, 'Trailing input')))
+		.or(Exp.skip(ignore));
 
 /***/ },
 /* 4 */

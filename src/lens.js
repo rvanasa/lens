@@ -5,7 +5,6 @@ var lens =
 	util: require('./util'),
 	parser: require('./parser'),
 	lib: require('./lib'),
-	Scope: require('./scope'),
 	parse(data)
 	{
 		data = String(data);
