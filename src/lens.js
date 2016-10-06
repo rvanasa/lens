@@ -13,7 +13,7 @@ var lens =
 		if(!result.status)
 		{
 			var nearby = data.substr(result.index.offset, 1);
-			throw new Error(`Unexpected `${nearby.length ? 'symbol ' + nearby : 'end of script'}` (line ${result.index.line}, col ${result.index.column})`);
+			throw new Error(`Unexpected ${nearby.length ? 'symbol ' + nearby : 'end of script'} (line ${result.index.line}, col ${result.index.column})`);
 		}
 		
 		return {
