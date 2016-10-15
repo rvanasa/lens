@@ -1172,20 +1172,16 @@
 				path, alias,
 				eval(scope, done)
 				{
-					var id = alias || (typeof path === 'string' ? path : path[path.length - 1]);
-					
 					var resource = new Resource((resolve) =>
 					{
-						util.invoke(scope.import, scope, [path], (value) =>
-						{
-							add(scope, id, value);
-							resolve(value);
-						});
+						util.invoke(scope.import, scope, [path], resolve);
 					});
-					resource.request();
 					
+					var id = alias || (typeof path === 'string' ? path : path[path.length - 1]);
+					resource.id = id;
 					scope[id] = resource;
 					
+					resource.request();
 					done(resource);
 				}
 			};
