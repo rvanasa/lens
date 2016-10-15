@@ -1,6 +1,6 @@
 'use strict'
 
-var lens =
+var Lens =
 {
 	util: require('./util'),
 	parser: require('./parser'),
@@ -9,7 +9,7 @@ var lens =
 	{
 		data = String(data);
 		
-		var result = lens.parser.parse(data);
+		var result = Lens.parser.parse(data);
 		if(!result.status)
 		{
 			var nearby = data.substr(result.index.offset, 1);
@@ -25,10 +25,10 @@ var lens =
 				var exported = false;
 				var result = undefined;
 				
-				Object.assign(scope, env.lib || lens.lib, {
+				Object.assign(scope, env.lib || Lens.lib, {
 					env,
 					ast: this.ast,
-					'import': lens.util.async((args, done) => env.import(args[0], done)),
+					'import': Lens.util.async((args, done) => env.import(args[0], done)),
 					'export': (value) => (exported = true) && (result = value),
 				});
 				
@@ -38,8 +38,8 @@ var lens =
 	},
 	eval(data, env, done)
 	{
-		return lens.parse(data).eval(env, done);
+		return Lens.parse(data).eval(env, done);
 	},
 };
 
-module.exports = lens;
+module.exports = Lens;

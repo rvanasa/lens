@@ -52,7 +52,7 @@
 
 	'use strict'
 
-	var lens =
+	var Lens =
 	{
 		util: __webpack_require__(2),
 		parser: __webpack_require__(3),
@@ -61,7 +61,7 @@
 		{
 			data = String(data);
 			
-			var result = lens.parser.parse(data);
+			var result = Lens.parser.parse(data);
 			if(!result.status)
 			{
 				var nearby = data.substr(result.index.offset, 1);
@@ -77,10 +77,10 @@
 					var exported = false;
 					var result = undefined;
 					
-					Object.assign(scope, env.lib || lens.lib, {
+					Object.assign(scope, env.lib || Lens.lib, {
 						env,
 						ast: this.ast,
-						'import': lens.util.async((args, done) => env.import(args[0], done)),
+						'import': Lens.util.async((args, done) => env.import(args[0], done)),
 						'export': (value) => (exported = true) && (result = value),
 					});
 					
@@ -90,11 +90,11 @@
 		},
 		eval(data, env, done)
 		{
-			return lens.parse(data).eval(env, done);
+			return Lens.parse(data).eval(env, done);
 		},
 	};
 
-	module.exports = lens;
+	module.exports = Lens;
 
 /***/ },
 /* 2 */
@@ -1172,12 +1172,18 @@
 				path, alias,
 				eval(scope, done)
 				{
-					util.invoke(scope.import, scope, [path], (value) =>
+					var resource = new Resource((resolve) =>
 					{
-						var id = alias || (typeof path === 'string' ? path : path[path.length - 1]);
-						add(scope, id, value);
-						done(value);
+						util.invoke(scope.import, scope, [path], (value) =>
+						{
+							var id = alias || (typeof path === 'string' ? path : path[path.length - 1]);
+							add(scope, id, value);
+							resolve(value);
+						});
 					});
+					resource.request();
+					
+					done(resource);
 				}
 			};
 		},
@@ -1420,7 +1426,7 @@
 		{
 			return '\'' + value + '\'';
 		}
-		else if(type === 'undefined')
+		else if(value === undefined)
 		{
 			return 'undefined';
 		}
@@ -1432,11 +1438,6 @@
 		{
 			return value;
 		}
-	}
-
-	function inspect(done)
-	{
-		return (value) => (console.log(value), done(value));
 	}
 
 	module.exports = function(id)

@@ -281,12 +281,18 @@ var AST =
 			path, alias,
 			eval(scope, done)
 			{
-				util.invoke(scope.import, scope, [path], (value) =>
+				var resource = new Resource((resolve) =>
 				{
-					var id = alias || (typeof path === 'string' ? path : path[path.length - 1]);
-					add(scope, id, value);
-					done(value);
+					util.invoke(scope.import, scope, [path], (value) =>
+					{
+						var id = alias || (typeof path === 'string' ? path : path[path.length - 1]);
+						add(scope, id, value);
+						resolve(value);
+					});
 				});
+				resource.request();
+				
+				done(resource);
 			}
 		};
 	},
@@ -529,7 +535,7 @@ function renderValue(value)
 	{
 		return '\'' + value + '\'';
 	}
-	else if(type === 'undefined')
+	else if(value === undefined)
 	{
 		return 'undefined';
 	}
@@ -541,11 +547,6 @@ function renderValue(value)
 	{
 		return value;
 	}
-}
-
-function inspect(done)
-{
-	return (value) => (console.log(value), done(value));
 }
 
 module.exports = function(id)
