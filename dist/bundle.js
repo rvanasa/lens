@@ -1067,32 +1067,6 @@
 				}
 			};
 		},
-		assign(id, exp)
-		{
-			return {
-				id, exp,
-				eval(scope, done)
-				{
-					if(exp._type === 'literal')
-					{
-						resource = exp.value;
-					}
-					else
-					{
-						var resource = new Resource((resolve) =>
-						{
-							exp.eval(scope, resolve);
-						});
-						resource.id = id;
-					}
-					
-					add(scope, id, resource);
-					// resource.request(done, (err) => done(err instanceof Error ? err : new Error(err)));
-					
-					done(resource);
-				}
-			};
-		},
 		anonymous(symbol, target)
 		{
 			return {
@@ -1126,6 +1100,32 @@
 					done(text);
 				}
 			}
+		},
+		assign(id, exp)
+		{
+			return {
+				id, exp,
+				eval(scope, done)
+				{
+					if(exp._type === 'literal')
+					{
+						resource = exp.value;
+					}
+					else
+					{
+						var resource = new Resource((resolve) =>
+						{
+							exp.eval(scope, resolve);
+						});
+						resource.id = id;
+					}
+					
+					add(scope, id, resource);
+					// resource.request(done, (err) => done(err instanceof Error ? err : new Error(err)));
+					
+					done(resource);
+				}
+			};
 		},
 		functionDef(id, pattern, exp)
 		{
