@@ -117,8 +117,8 @@ var Exp = p.lazy('Expression', () =>
 });
 
 var Statement = p.lazy('Statement', () => p.alt(
-	CompStatement,
 	ExportStatement,
+	CompStatement,
 	FunctionStatement,
 	AssignStatement,
 	CompStatement
@@ -195,9 +195,9 @@ var AssignStatement = seq(IDENT.skip(ASSIGN), Exp, AST('assign'));
 
 var FunctionStatement = seq(p.alt(IDENT, OPR), p.alt(TuplePattern, RoutePattern.map(r => AST('tuplePattern')([r]))), p.alt(ASSIGN.then(Exp), BlockExp), AST('functionDef'));
 
-var CompStatement = seq(TargetExp, p.alt(STR, RouteLiteral, sep1(DOT, IDENT)), opt(AS.then(IDENT)), AST('composure'));
-
 var ExportStatement = EXPORT.then(Exp).map(AST('export'));
+
+var CompStatement = seq(TargetExp, p.alt(STR, RouteLiteral, sep1(DOT, IDENT)), opt(AS.then(IDENT)), AST('composure'));
 
 module.exports = MultiExp.skip(ignore).skip(p.custom((success, failure) => (stream, i) => i >= stream.length ? success(i) : failure(i, 'Trailing input')))
 	.or(Exp.skip(ignore));

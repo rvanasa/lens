@@ -275,12 +275,6 @@ var AST =
 			}
 		};
 	},
-	composure(target, path, alias)
-	{
-		if(!alias) alias = typeof path === 'string' ? path : path[path.length - 1];
-		
-		return AST['assign'](alias, AST['invoke'](target, AST['literal'](path)));
-	},
 	export(exp)
 	{
 		return {
@@ -293,6 +287,12 @@ var AST =
 				});
 			}
 		};
+	},
+	composure(target, path, alias)
+	{
+		if(!alias) alias = typeof path === 'string' ? path : path[path.length - 1];
+		
+		return AST['assign'](alias, AST['invoke'](target, AST['literal'](path)));
 	},
 	basicPattern(id)
 	{
