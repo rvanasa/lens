@@ -297,15 +297,15 @@ var AST =
 			target, path, alias,
 			eval(scope, done)
 			{
-				var resource = new Resource(() =>
+				var resource = new Resource((resolve) =>
 				{
 					target.eval(scope, (fn) =>
 					{
-						util.invoke(fn, scope, [path, alias, scope], done);
+						util.invoke(fn, scope, [path, alias, scope], resolve);
 					});
 				});
 				resource.id = id;
-				resource.request();
+				resource.request(done);
 				
 				add(scope, id, resource);
 			}
