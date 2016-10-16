@@ -292,7 +292,7 @@ var AST =
 	{
 		var id = alias || typeof path === 'string' ? path : path[path.length - 1];
 		
-		return AST['assign'](id, AST['invoke'](target, AST['tuple']([AST['literal'](path), alias])));
+		return AST['assign'](id, AST['invoke'](target, AST['tuple']([AST['literal'](path), AST['literal'](alias)])));
 	},
 	basicPattern(id)
 	{
