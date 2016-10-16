@@ -1,8 +1,8 @@
 a = ('a','b','c')
 // export (0,1,2,3) ^ [a[@]]
 
-f(x) = x + 1
+f(a, b) = a + (b || 1)
 
-f abc as h
+f /abc/efg as h
 
 export h

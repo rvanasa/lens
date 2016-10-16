@@ -249,6 +249,7 @@ var AST =
 					exp.eval(fnScope, done);
 				});
 				fn.pattern = pattern;
+				fn.ast = this;
 				
 				if(id)
 				{
@@ -292,7 +293,23 @@ var AST =
 	{
 		var id = alias || (typeof path === 'string' ? path : path[path.length - 1]);
 		
-		return AST['assign'](id, AST['invoke'](target, AST['tuple']([AST['literal'](path), AST['literal'](alias)])));
+		return {
+			target, path, alias,
+			eval(scope, done)
+			{
+				var resource = new Resource(() =>
+				{
+					target.eval(scope, (fn) =>
+					{
+						util.invoke(fn, scope, [path, alias, scope], done);
+					});
+				});
+				resource.id = id;
+				resource.request();
+				
+				add(scope, id, resource);
+			}
+		};
 	},
 	basicPattern(id)
 	{
