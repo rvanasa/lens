@@ -1,8 +1,21 @@
 'use strict'
 
+var Resource = require('plasma').Resource;
+
 module.exports =
 {
-	Resource: require('plasma').Resource,
+	Resource,
+	resolve(resource, done)
+	{
+		if(resource instanceof Resource)
+		{
+			resource.request(done);
+		}
+		else
+		{
+			done(resource);
+		}
+	},
 	invoke(fn, self, args, done, scope)
 	{
 		if(fn.async)

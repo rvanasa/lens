@@ -65,7 +65,6 @@ var F_SLASH = keyword('/');
 var AT_MARK = keyword('@');
 var POUND_SYMBOL = keyword('#');
 
-var IMPORT = keyword('import');
 var EXPORT = keyword('export');
 
 var AS = keyword('as');
@@ -118,10 +117,11 @@ var Exp = p.lazy('Expression', () =>
 });
 
 var Statement = p.lazy('Statement', () => p.alt(
-	ImportStatement,
+	CompStatement,
 	ExportStatement,
 	FunctionStatement,
-	AssignStatement
+	AssignStatement,
+	CompStatement
 ));
 
 var Pattern = p.lazy('Pattern', () => p.alt(
@@ -195,7 +195,7 @@ var AssignStatement = seq(IDENT.skip(ASSIGN), Exp, AST('assign'));
 
 var FunctionStatement = seq(p.alt(IDENT, OPR), p.alt(TuplePattern, RoutePattern.map(r => AST('tuplePattern')([r]))), p.alt(ASSIGN.then(Exp), BlockExp), AST('functionDef'));
 
-var ImportStatement = seq(IMPORT.then(p.alt(STR, RouteLiteral, sep1(DOT, IDENT))), opt(AS.then(IDENT)), AST('import'));
+var CompStatement = seq(TargetExp, p.alt(STR, RouteLiteral, sep1(DOT, IDENT)), opt(AS.then(IDENT)), AST('composure'));
 
 var ExportStatement = EXPORT.then(Exp).map(AST('export'));
 

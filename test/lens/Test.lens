@@ -1,2 +1,8 @@
 a = ('a','b','c')
-export (0,1,2,3) ^ [a[@]]
+// export (0,1,2,3) ^ [a[@]]
+
+f(x) = x + 1
+
+f /5 as g
+
+export g

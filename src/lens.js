@@ -18,27 +18,27 @@ var Lens =
 		
 		return {
 			ast: result.value,
-			eval(env, done)
+			eval(context, done)
 			{
 				var scope = Object.create(null);
 				
 				var exported = false;
 				var result = undefined;
 				
-				Object.assign(scope, env.lib || Lens.lib, {
-					env,
+				Object.assign(scope, Lens.lib, {
 					ast: this.ast,
-					'import': Lens.util.async((args, done) => env.import(args[0], done)),
 					'export': (value) => (exported = true) && (result = value),
-				});
+				}, context);
 				
 				this.ast.eval(scope, (value) => done(exported ? result : value));
 			}
 		}
 	},
-	eval(data, env, done)
+	eval(data, context, done)
 	{
-		return Lens.parse(data).eval(env, done);
+		if(!data) done();
+		
+		return Lens.parse(data).eval(context, done);
 	},
 };
 

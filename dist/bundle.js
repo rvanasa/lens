@@ -70,27 +70,27 @@
 			
 			return {
 				ast: result.value,
-				eval(env, done)
+				eval(context, done)
 				{
 					var scope = Object.create(null);
 					
 					var exported = false;
 					var result = undefined;
 					
-					Object.assign(scope, env.lib || Lens.lib, {
-						env,
+					Object.assign(scope, Lens.lib, {
 						ast: this.ast,
-						'import': Lens.util.async((args, done) => env.import(args[0], done)),
 						'export': (value) => (exported = true) && (result = value),
-					});
+					}, context);
 					
 					this.ast.eval(scope, (value) => done(exported ? result : value));
 				}
 			}
 		},
-		eval(data, env, done)
+		eval(data, context, done)
 		{
-			return Lens.parse(data).eval(env, done);
+			if(!data) done();
+			
+			return Lens.parse(data).eval(context, done);
 		},
 	};
 
@@ -102,9 +102,22 @@
 
 	'use strict'
 
+	var Resource = __webpack_require__(3).Resource;
+
 	module.exports =
 	{
-		Resource: __webpack_require__(3).Resource,
+		Resource,
+		resolve(resource, done)
+		{
+			if(resource instanceof Resource)
+			{
+				resource.request(done);
+			}
+			else
+			{
+				done(resource);
+			}
+		},
 		invoke(fn, self, args, done, scope)
 		{
 			if(fn.async)
@@ -481,7 +494,6 @@
 	var AT_MARK = keyword('@');
 	var POUND_SYMBOL = keyword('#');
 
-	var IMPORT = keyword('import');
 	var EXPORT = keyword('export');
 
 	var AS = keyword('as');
@@ -534,10 +546,11 @@
 	});
 
 	var Statement = p.lazy('Statement', () => p.alt(
-		ImportStatement,
+		CompStatement,
 		ExportStatement,
 		FunctionStatement,
-		AssignStatement
+		AssignStatement,
+		CompStatement
 	));
 
 	var Pattern = p.lazy('Pattern', () => p.alt(
@@ -611,7 +624,7 @@
 
 	var FunctionStatement = seq(p.alt(IDENT, OPR), p.alt(TuplePattern, RoutePattern.map(r => AST('tuplePattern')([r]))), p.alt(ASSIGN.then(Exp), BlockExp), AST('functionDef'));
 
-	var ImportStatement = seq(IMPORT.then(p.alt(STR, RouteLiteral, sep1(DOT, IDENT))), opt(AS.then(IDENT)), AST('import'));
+	var CompStatement = seq(TargetExp, p.alt(STR, RouteLiteral, sep1(DOT, IDENT)), opt(AS.then(IDENT)), AST('composure'));
 
 	var ExportStatement = EXPORT.then(Exp).map(AST('export'));
 
@@ -1428,25 +1441,11 @@
 				}
 			};
 		},
-		import(path, alias)
+		composure(target, path, alias)
 		{
-			return {
-				path, alias,
-				eval(scope, done)
-				{
-					var resource = new Resource((resolve) =>
-					{
-						util.invoke(scope.import, scope, [path], resolve);
-					});
-					
-					var id = alias || (typeof path === 'string' ? path : path[path.length - 1]);
-					resource.id = id;
-					scope[id] = resource;
-					
-					resource.request();
-					done(resource);
-				}
-			};
+			if(!alias) alias = typeof path === 'string' ? path : path[path.length - 1];
+			
+			return AST['assign'](alias, AST['invoke'](target, AST['literal'](path)));
 		},
 		export(exp)
 		{

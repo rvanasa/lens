@@ -275,25 +275,11 @@ var AST =
 			}
 		};
 	},
-	import(path, alias)
+	composure(target, path, alias)
 	{
-		return {
-			path, alias,
-			eval(scope, done)
-			{
-				var resource = new Resource((resolve) =>
-				{
-					util.invoke(scope.import, scope, [path], resolve);
-				});
-				
-				var id = alias || (typeof path === 'string' ? path : path[path.length - 1]);
-				resource.id = id;
-				scope[id] = resource;
-				
-				resource.request();
-				done(resource);
-			}
-		};
+		if(!alias) alias = typeof path === 'string' ? path : path[path.length - 1];
+		
+		return AST['assign'](alias, AST['invoke'](target, AST['literal'](path)));
 	},
 	export(exp)
 	{
