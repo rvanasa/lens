@@ -3,6 +3,6 @@ a = ('a','b','c')
 
 f(x) = x + 1
 
-f /10 as h
+f abc as h
 
 export h

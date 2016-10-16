@@ -1457,7 +1457,7 @@
 		},
 		composure(target, path, alias)
 		{
-			var id = alias || typeof path === 'string' ? path : path[path.length - 1];
+			var id = alias || (typeof path === 'string' ? path : path[path.length - 1]);
 			
 			return AST['assign'](id, AST['invoke'](target, AST['tuple']([AST['literal'](path), AST['literal'](alias)])));
 		},
