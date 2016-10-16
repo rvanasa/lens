@@ -290,9 +290,9 @@ var AST =
 	},
 	composure(target, path, alias)
 	{
-		if(!alias) alias = typeof path === 'string' ? path : path[path.length - 1];
+		var id = alias || typeof path === 'string' ? path : path[path.length - 1];
 		
-		return AST['assign'](alias, AST['invoke'](target, AST['literal'](path)));
+		return AST['assign'](id, AST['invoke'](target, AST['tuple']([AST['literal'](path), alias])));
 	},
 	basicPattern(id)
 	{

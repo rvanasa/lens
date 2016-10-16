@@ -627,6 +627,7 @@
 	var ExportStatement = EXPORT.then(Exp).map(AST('export'));
 
 	var CompStatement = seq(TargetExp, p.alt(STR, RouteLiteral, sep1(DOT, IDENT)), opt(AS.then(IDENT)), AST('composure'));
+	// allow multiple 'path as x' declarations per composure
 
 	module.exports = MultiExp.skip(ignore).skip(p.custom((success, failure) => (stream, i) => i >= stream.length ? success(i) : failure(i, 'Trailing input')))
 		.or(Exp.skip(ignore));
@@ -1456,9 +1457,9 @@
 		},
 		composure(target, path, alias)
 		{
-			if(!alias) alias = typeof path === 'string' ? path : path[path.length - 1];
+			var id = alias || typeof path === 'string' ? path : path[path.length - 1];
 			
-			return AST['assign'](alias, AST['invoke'](target, AST['literal'](path)));
+			return AST['assign'](id, AST['invoke'](target, AST['tuple']([AST['literal'](path), alias])));
 		},
 		basicPattern(id)
 		{
