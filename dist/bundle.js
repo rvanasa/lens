@@ -1472,9 +1472,9 @@
 						});
 					});
 					resource.id = id;
-					resource.request(done);
-					
 					add(scope, id, resource);
+					
+					resource.request(done);
 				}
 			};
 		},
