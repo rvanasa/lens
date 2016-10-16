@@ -2,6 +2,7 @@
 
 module.exports =
 {
+	Resource: require('plasma').Resource,
 	invoke(fn, self, args, done, scope)
 	{
 		if(fn.async)
