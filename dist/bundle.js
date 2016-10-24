@@ -626,7 +626,7 @@
 
 	var ExportStatement = EXPORT.then(Exp).map(AST('export'));
 
-	var CompStatement = seq(TargetExp, p.alt(STR, RouteLiteral, IDENT, sep1(DOT, IDENT)), opt(AS.then(IDENT)), AST('composure'));
+	var CompStatement = seq(TargetExp, sep1(COMMA, p.seq(p.alt(STR, RouteLiteral, IDENT, sep1(DOT, IDENT)), opt(AS.then(IDENT)))), AST('composure'));
 	// allow multiple 'path as x' declarations per composure
 
 	module.exports = MultiExp.skip(ignore).skip(p.custom((success, failure) => (stream, i) => i >= stream.length ? success(i) : failure(i, 'Trailing input')))
@@ -1456,25 +1456,32 @@
 				}
 			};
 		},
-		composure(target, path, alias)
+		composure(target, nodes)
 		{
-			var id = alias || (typeof path === 'string' ? path : path[path.length - 1]);
-			
 			return {
-				target, path, alias,
+				target, nodes,
 				eval(scope, done)
 				{
-					var resource = new Resource((resolve) =>
+					for(var i = 0; i < nodes.length; i++)
 					{
-						target.eval(scope, (fn) =>
+						var node = nodes[i];
+						var path = node[0];
+						var alias = node[1];
+						
+						var id = alias || (typeof path === 'string' ? path : path[path.length - 1]);
+						
+						var resource = new Resource((resolve) =>
 						{
-							util.invoke(fn, scope, [path, alias, scope], resolve);
+							target.eval(scope, (fn) =>
+							{
+								util.invoke(fn, scope, [path, alias, scope], resolve);
+							});
 						});
-					});
-					resource.id = id;
-					add(scope, id, resource);
-					
-					resource.request(done);
+						resource.id = id;
+						add(scope, id, resource);
+						
+						resource.request(done);
+					}
 				}
 			};
 		},

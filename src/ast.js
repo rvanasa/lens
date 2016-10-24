@@ -289,25 +289,32 @@ var AST =
 			}
 		};
 	},
-	composure(target, path, alias)
+	composure(target, nodes)
 	{
-		var id = alias || (typeof path === 'string' ? path : path[path.length - 1]);
-		
 		return {
-			target, path, alias,
+			target, nodes,
 			eval(scope, done)
 			{
-				var resource = new Resource((resolve) =>
+				for(var i = 0; i < nodes.length; i++)
 				{
-					target.eval(scope, (fn) =>
+					var node = nodes[i];
+					var path = node[0];
+					var alias = node[1];
+					
+					var id = alias || (typeof path === 'string' ? path : path[path.length - 1]);
+					
+					var resource = new Resource((resolve) =>
 					{
-						util.invoke(fn, scope, [path, alias, scope], resolve);
+						target.eval(scope, (fn) =>
+						{
+							util.invoke(fn, scope, [path, alias, scope], resolve);
+						});
 					});
-				});
-				resource.id = id;
-				add(scope, id, resource);
-				
-				resource.request(done);
+					resource.id = id;
+					add(scope, id, resource);
+					
+					resource.request(done);
+				}
 			}
 		};
 	},
