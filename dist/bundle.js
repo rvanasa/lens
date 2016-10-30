@@ -326,10 +326,6 @@
 		function request(i)
 		{
 			var resource = resources[i];
-			if(typeof resource === 'function')
-			{
-				resource = Resource.lightAsync(resource);
-			}
 			var flag = true;
 			function resolve(value)
 			{

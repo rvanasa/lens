@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "description": "",
   "main": "index.js",
-  "author": "Indigo Technica",
+  "author": "Ryan Vandersmith <ryanvandersmith@gmail.com>",
   "dependencies": {
-    "parsimmon": "^0.7.0",
     "plasma": "rvanasa/plasma",
+    "parsimmon": "^0.7.0"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
