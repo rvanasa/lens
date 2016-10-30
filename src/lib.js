@@ -15,7 +15,7 @@ module.exports = {
 	'&&': (a, b) => a && b,
 	'||': (a, b) => a || b,
 	'+'(a, b) {return arguments.length == 1 ? +a : a + b},
-	'-'(a, b) {return arguments.length == 1 ? -b : b - b},
+	'-'(a, b) {return arguments.length == 1 ? -a : b - b},
 	'*': (a, b) => a * b,
 	'/': (a, b) => a / b,
 	'%': util.async(function(args, done, scope)
@@ -30,6 +30,7 @@ module.exports = {
 			done(a % b);
 		}
 	}),
+	'::': (a, b) => [].concat(a, b),
 	'<>'(a, b)
 	{
 		var list = [];

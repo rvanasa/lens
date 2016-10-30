@@ -23,7 +23,7 @@ function opt(parser)
 
 function optNext(a, b, combiner)
 {
-	return seq(a, opt(b), (a, b) => b !== undefined ? combiner(a, b) : a);
+	return seq(a, b, combiner).or(a);
 }
 
 function sep1(delim, parser)
@@ -39,7 +39,7 @@ function surround(left, parser, right)
 var ignore = p.alt(p.string('//').then(p.regex(/.*$/m)), p.whitespace).many();
 
 var IDENT = lexeme(p.regex(/[_A-Za-z$][_A-Za-z$0-9]*/));
-var OPR = lexeme(p.regex(/[+\-*/<>^~%!?&|]+=*|==/));
+var OPR = lexeme(p.regex(/[+\-*/<>^~%!?&|:]+=*|==/));
 var STR = lexeme(p.regex(/'([^'\\]*(\\.[^'\\]*)*)'|"([^"\\]*(\\.[^"\\]*)*)"/)).map(s => s.substring(1, s.length - 1));
 var NUM = lexeme(p.regex(/-?([0-9]+|[0-9]*\.[0-9]+)/)).map(Number);
 var TRUE = keyword('true').result(true);
@@ -100,17 +100,18 @@ var Exp = p.lazy('Expression', () =>
 		TargetExp
 	);
 	
-	// exp = optNext(exp, sameLine.then(TupleListExp.or(Exp)), AST('invoke'));
+	var oprExp = OPR.map(AST('opr'));
+	var invokeExp = AST('invoke');
+	var tupleExp = AST('tuple');
 	
-	var invoke = AST('invoke');
-	var tuple = AST('tuple');
+	exp = seq(oprExp.skip(sameLine), exp.map((exp) => tupleExp([exp])), invokeExp).or(exp);
 	
-	return p.seqMap(exp, p.seq(OPR.map(AST('opr')), exp).many(), (exp, tails) =>
+	return p.seqMap(exp, p.seq(oprExp, exp).many(), (exp, tails) =>
 	{
 		for(var i = 0; i < tails.length; i++)
 		{
 			var tail = tails[i];
-			exp = invoke(tail[0], tuple([exp, tail[1]]));
+			exp = invokeExp(tail[0], tupleExp([exp, tail[1]]));
 		}
 		return exp;
 	});
@@ -200,5 +201,5 @@ var ExportStatement = EXPORT.then(Exp).map(AST('export'));
 var CompStatement = seq(TargetExp, sep1(COMMA, p.seq(p.alt(STR, RouteLiteral, IDENT, sep1(DOT, IDENT)), opt(AS.then(IDENT)))), AST('composure'));
 // allow multiple 'path as x' declarations per composure
 
-module.exports = MultiExp.skip(ignore).skip(p.custom((success, failure) => (stream, i) => i >= stream.length ? success(i) : failure(i, 'Trailing input')))
+module.exports = MultiExp.map(AST('block')).skip(ignore).skip(p.custom((success, failure) => (stream, i) => i >= stream.length ? success(i) : failure(i, 'Trailing input')))
 	.or(Exp.skip(ignore));

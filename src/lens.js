@@ -22,15 +22,11 @@ var Lens =
 			{
 				var scope = Object.create(null);
 				
-				var exported = false;
-				var result = undefined;
-				
 				Object.assign(scope, Lens.lib, {
 					ast: this.ast,
-					'export': (value) => (exported = true) && (result = value),
 				}, context);
 				
-				this.ast.eval(scope, (value) => done(exported ? result : value));
+				this.ast.eval(scope, done);
 			}
 		}
 	},

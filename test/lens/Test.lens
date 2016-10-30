@@ -5,4 +5,6 @@ f(a, b) = a + (b || 1)
 
 f /abc/efg as h
 
-export h
+q = 5
+
+export -q :: h :: 0
