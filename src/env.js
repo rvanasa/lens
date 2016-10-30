@@ -18,23 +18,24 @@ class Environment
 	{
 		return path.resolve(this.path, id.replace(/\./g, '/') + '.lens');
 	}
-	
-	import(id, done)
-	{
-		if(typeof id !== 'string') id = id.join('.');
-		
-		var resource = this.imports[id];
-		if(!resource)
-		{
-			resource = lens.eval(fs.readFileSync(this.resolve(id)), this, done);
-			this.imports[id] = resource;
-		}
-		else
-		{
-			done(resource);
-		}
-		return resource;
-	}
 }
+
+Environment.prototype.import = lens.util.async(function(args, done)
+{
+	var id = args[0];
+	if(typeof id !== 'string') id = id.join('.');
+	
+	var resource = this.imports[id];
+	if(!resource)
+	{
+		resource = lens.eval(fs.readFileSync(this.resolve(id)), this, done);
+		this.imports[id] = resource;
+	}
+	else
+	{
+		done(resource);
+	}
+	return resource;
+});
 
 module.exports = Environment;

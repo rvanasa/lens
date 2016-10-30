@@ -5,10 +5,8 @@
   "main": "index.js",
   "author": "Indigo Technica",
   "dependencies": {
-    "express": "^4.14.0",
     "parsimmon": "^0.7.0",
     "plasma": "rvanasa/plasma",
-    "request": "^2.74.0"
   },
   "devDependencies": {
     "grunt": "^0.4.5",

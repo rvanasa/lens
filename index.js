@@ -1,28 +1,10 @@
 // var express = require('express');
 
-var util = require('./src/util');
-
 var Environment = require('./src/env');
 
 var env = new Environment(process.argv[2] || process.cwd());
 
-env.imports['console'] =
-{
-	in: util.async(function(args, done)
-	{
-		process.stdout.write((args[0] || 'input') + ' : ')
-		
-		process.stdin.resume();
-		process.stdin.setEncoding('utf8');
-		process.stdin.on('data', (value) =>
-		{
-			if(!isNaN(+value)) value = +value;
-			done(value);
-		});
-	}),
-}
-
-env.import('test/lens/Test', (config) =>
+env.import(['test/lens/Test'], (config) =>
 {
 	console.log('->', config);
 	
