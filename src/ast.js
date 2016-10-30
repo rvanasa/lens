@@ -313,8 +313,9 @@ var AST =
 					resource.id = id;
 					add(scope, id, resource);
 					
-					resource.request(done);
+					resource.request();
 				}
+				done();
 			}
 		};
 	},
