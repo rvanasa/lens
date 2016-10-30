@@ -30,7 +30,7 @@ module.exports = {
 			done(a % b);
 		}
 	}),
-	'::': (a, b) => [].concat(a, b),
+	'::': (a, b) => [].concat(a !== undefined ? a : [], b !== undefined ? b : []),
 	'<>'(a, b)
 	{
 		var list = [];

@@ -28,7 +28,7 @@ var Lens =
 				
 				this.ast.eval(scope, done);
 			}
-		}
+		};
 	},
 	eval(data, context, done)
 	{

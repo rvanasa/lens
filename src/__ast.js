@@ -558,18 +558,6 @@ function renderValue(value)
 	}
 }
 
-// function register(config)
-// {
-// 	AST[config.id] = function()
-// 	{
-// 		var ast = {_type: config.id};
-// 		for(var i = 0; i < arguments.length; i++)
-// 		{
-// 			ast[config.props[i]] = arguments[i];
-// 		}
-// 	};
-// }
-
 module.exports = function(id)
 {
 	var ast = AST[id];

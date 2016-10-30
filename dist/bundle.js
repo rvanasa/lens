@@ -80,7 +80,7 @@
 					
 					this.ast.eval(scope, done);
 				}
-			}
+			};
 		},
 		eval(data, context, done)
 		{
@@ -1722,6 +1722,18 @@
 		}
 	}
 
+	// function register(config)
+	// {
+	// 	AST[config.id] = function()
+	// 	{
+	// 		var ast = {_type: config.id};
+	// 		for(var i = 0; i < arguments.length; i++)
+	// 		{
+	// 			ast[config.props[i]] = arguments[i];
+	// 		}
+	// 	};
+	// }
+
 	module.exports = function(id)
 	{
 		var ast = AST[id];
@@ -1824,7 +1836,7 @@
 				done(a % b);
 			}
 		}),
-		'::': (a, b) => [].concat(a, b),
+		'::': (a, b) => [].concat(a !== undefined ? a : [], b !== undefined ? b : []),
 		'<>'(a, b)
 		{
 			var list = [];
