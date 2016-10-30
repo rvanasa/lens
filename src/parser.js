@@ -192,7 +192,7 @@ var ConditionExp = seq(IF.then(Exp), Exp, opt(ELSE.then(Exp)), AST('conditional'
 
 var AnonymousExp = seq(p.alt(AT_MARK, POUND_SYMBOL), opt(p.alt(IDENT, STR, NUM)), AST('anonymous'));
 
-var AssignStatement = seq(IDENT.skip(ASSIGN), Exp, AST('assign'));
+var AssignStatement = seq(p.alt(IDENT, OPR).skip(ASSIGN), Exp, AST('assign'));
 
 var FunctionStatement = seq(p.alt(IDENT, OPR), p.alt(TuplePattern, RoutePattern.map(r => AST('tuplePattern')([r]))), p.alt(ASSIGN.then(Exp), BlockExp), AST('functionDef'));
 
