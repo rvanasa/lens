@@ -39,7 +39,7 @@ function surround(left, parser, right)
 var ignore = p.alt(p.string('//').then(p.regex(/.*$/m)), p.whitespace).many();
 
 var IDENT = lexeme(p.regex(/[_A-Za-z$][_A-Za-z$0-9]*/));
-var OPR = lexeme(p.regex(/[+\-*/<>^~%!?&|:]+=*|==/));
+var OPR = lexeme(p.regex(/[+\-*/<>^~%!?&|:]+|==/));
 var STR = lexeme(p.regex(/'([^'\\]*(\\.[^'\\]*)*)'|"([^"\\]*(\\.[^"\\]*)*)"/)).map(s => s.substring(1, s.length - 1));
 var NUM = lexeme(p.regex(/-?([0-9]+|[0-9]*\.[0-9]+)/)).map(Number);
 var TRUE = keyword('true').result(true);
@@ -201,5 +201,8 @@ var ExportStatement = EXPORT.then(Exp).map(AST('export'));
 var CompStatement = seq(TargetExp, sep1(COMMA, p.seq(p.alt(STR, RouteLiteral, IDENT, sep1(DOT, IDENT)), opt(AS.then(IDENT)))), AST('composure'));
 // allow multiple 'path as x' declarations per composure
 
-module.exports = MultiExp.map(AST('block')).skip(ignore).skip(p.custom((success, failure) => (stream, i) => i >= stream.length ? success(i) : failure(i, 'Trailing input')))
-	.or(Exp.skip(ignore));
+// module.exports = MultiExp.map(AST('block')).skip(ignore).skip(p.custom((success, failure) => (stream, i) => i >= stream.length ? success(i) : failure(i, 'Trailing input')))
+// 	.or(Exp.skip(ignore));
+
+module.exports = optNext(MultiExp, opt(Exp).map(AST('export')), (list, exp) => (list.push(exp), list)).map(AST('block'))
+	.skip(ignore).skip(p.custom((success, failure) => (stream, i) => i >= stream.length ? success(i) : failure(i, 'Trailing input')));
