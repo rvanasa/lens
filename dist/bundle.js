@@ -132,28 +132,45 @@
 		},
 		all(values, mapper, callback)
 		{
-			var results = [];
-			var len = values.length;
-			if(!len) callback(results);
-			var ct = len;
-			for(var i = 0; i < len; i++)
+			var ct;
+			var results = Array(values.length);
+			if(!values || values.length == 0) callback(results);
+			if(Array.isArray(values))
 			{
-				request(i);
-			}
-			function request(i)
-			{
-				var value = values[i];
-				var flag = true;
-				function done(value)
+				var len = values.length;
+				ct = len;
+				for(let i = 0; i < len; i++)
 				{
-					results[i] = value;
-					if(flag && --ct == 0)
+					request(values[i], i);
+				}
+			}
+			else if(values.next)
+			{
+				ct = 1;
+				let i = 0;
+				var entry;
+				while(!(entry = values.next()).done)
+				{
+					ct++;
+					request(entry.value, i++);
+				}
+				if(--ct == 0)
+				{
+					callback(results);
+				}
+			}
+			else return values;
+			
+			function request(value, i)
+			{
+				mapper(value, (result) =>
+				{
+					results[i] = result;
+					if(--ct == 0)
 					{
-						flag = false;
 						callback(results);
 					}
-				}
-				mapper(value, done);
+				});
 			}
 		},
 	};
@@ -1838,7 +1855,7 @@
 			}
 		}),
 		'|<': Math.max,
-		'|>:': Math.min,
+		'|>': Math.min,
 		'::': (a, b) => [].concat(a !== undefined ? a : [], b !== undefined ? b : []),
 		'<>'(a, b)
 		{
@@ -1891,7 +1908,7 @@
 				i++;
 				if(i >= target.length) return done(value);
 				
-				util.invoke(transform, value, [value, target[i]], reduce);
+				util.invoke(transform, value, [value, target[i]], reduce, scope);
 			}
 		}),
 		scope: util.async(function(args, done, scope)
@@ -1926,7 +1943,43 @@
 		// 		});
 		// 	},
 		// },
+		permute: function*(list) {yield* permute(list, 0)},
+		zip(a, b)
+		{
+			var length = Math.max(a.length, b.length);
+			var array = [];
+			for(var i = 0; i < length; i++)
+			{
+				array[i] = [a[i], b[i]];
+			}
+			return array;
+		},
 		Object, JSON, Math,
+	}
+
+	function* permute(list, index)
+	{
+		if(index >= list.length - 1)
+		{
+			yield list;
+		}
+		else
+		{
+			yield* permute(list, index + 1);
+			for(var i = index + 1; i < list.length; i++)
+			{
+				var j = index;
+				var prev = list[j];
+				
+				list[j] = list[i];
+				list[i] = prev;
+				
+				yield* permute(list, index + 1);
+				
+				list[i] = list[j];
+				list[j] = prev;
+			}
+		}
 	}
 
 /***/ }

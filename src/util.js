@@ -34,28 +34,45 @@ module.exports =
 	},
 	all(values, mapper, callback)
 	{
-		var results = [];
-		var len = values.length;
-		if(!len) callback(results);
-		var ct = len;
-		for(var i = 0; i < len; i++)
+		var ct;
+		var results = Array(values.length);
+		if(!values || values.length == 0) callback(results);
+		if(Array.isArray(values))
 		{
-			request(i);
-		}
-		function request(i)
-		{
-			var value = values[i];
-			var flag = true;
-			function done(value)
+			var len = values.length;
+			ct = len;
+			for(let i = 0; i < len; i++)
 			{
-				results[i] = value;
-				if(flag && --ct == 0)
+				request(values[i], i);
+			}
+		}
+		else if(values.next)
+		{
+			ct = 1;
+			let i = 0;
+			var entry;
+			while(!(entry = values.next()).done)
+			{
+				ct++;
+				request(entry.value, i++);
+			}
+			if(--ct == 0)
+			{
+				callback(results);
+			}
+		}
+		else return values;
+		
+		function request(value, i)
+		{
+			mapper(value, (result) =>
+			{
+				results[i] = result;
+				if(--ct == 0)
 				{
-					flag = false;
 					callback(results);
 				}
-			}
-			mapper(value, done);
+			});
 		}
 	},
 };

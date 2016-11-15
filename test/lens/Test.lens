@@ -1,10 +1,18 @@
-a = ('a','b','c')
-// export (0,1,2,3) ^ [a[@]]
+// a = ('a','b','c')
+// // export (0,1,2,3) ^ [a[@]]
 
-f(a, b) = a + (b || 1)
+// f(a, b) = a + (b || 1)
 
-f /abc/efg as h
+// f /abc/efg as h
 
-q = 5
+// q = 5
 
--q :: h :: 0
+// -q :: h :: 0
+
+// list = 1 <> 4 ^ [@**2]
+
+// optimize(p) = (p ^ [@**#] ^^ +, ::p)
+
+// pr = permute(list) ^ optimize ^^ [if(@[0] > #[0]) @ else #]
+
+// export pr

@@ -34,7 +34,7 @@ module.exports = {
 		}
 	}),
 	'|<': Math.max,
-	'|>:': Math.min,
+	'|>': Math.min,
 	'::': (a, b) => [].concat(a !== undefined ? a : [], b !== undefined ? b : []),
 	'<>'(a, b)
 	{
@@ -87,7 +87,7 @@ module.exports = {
 			i++;
 			if(i >= target.length) return done(value);
 			
-			util.invoke(transform, value, [value, target[i]], reduce);
+			util.invoke(transform, value, [value, target[i]], reduce, scope);
 		}
 	}),
 	scope: util.async(function(args, done, scope)
@@ -122,5 +122,41 @@ module.exports = {
 	// 		});
 	// 	},
 	// },
+	permute: function*(list) {yield* permute(list, 0)},
+	zip(a, b)
+	{
+		var length = Math.max(a.length, b.length);
+		var array = [];
+		for(var i = 0; i < length; i++)
+		{
+			array[i] = [a[i], b[i]];
+		}
+		return array;
+	},
 	Object, JSON, Math,
+}
+
+function* permute(list, index)
+{
+	if(index >= list.length - 1)
+	{
+		yield list;
+	}
+	else
+	{
+		yield* permute(list, index + 1);
+		for(var i = index + 1; i < list.length; i++)
+		{
+			var j = index;
+			var prev = list[j];
+			
+			list[j] = list[i];
+			list[i] = prev;
+			
+			yield* permute(list, index + 1);
+			
+			list[i] = list[j];
+			list[j] = prev;
+		}
+	}
 }
