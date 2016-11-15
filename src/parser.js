@@ -155,7 +155,7 @@ var RouteExpNode = p.lazy('RouteExpNode', () => p.alt(
 
 var RouteLiteral = F_SLASH.then(sep1(F_SLASH, Literal.or(ROUTE_NODE)).or(p.succeed([])));
 
-var LiteralExp = Literal.map(AST('literal')).optNext(IdentExp, (literal, id) => AST('invoke')(id, literal));
+var LiteralExp = optNext(Literal.map(AST('literal')), IdentExp, (literal, id) => AST('invoke')(id, literal));
 
 var TargetExp = p.lazy('TargetExp', () =>
 {
