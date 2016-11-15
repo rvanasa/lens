@@ -7,4 +7,4 @@ f /abc/efg as h
 
 q = 5
 
-export -q :: h :: 0
+-q :: h :: 0

@@ -14,9 +14,12 @@ module.exports = {
 	'<=': (a, b) => a <= b,
 	'&&': (a, b) => a && b,
 	'||': (a, b) => a || b,
+	'&': (a, b) => a !== undefined ? b : a,
+	'|': (a, b) => a !== undefined ? a : (b !== undefined ? b : a),
 	'+'(a, b) {return arguments.length == 1 ? +a : a + b},
 	'-'(a, b) {return arguments.length == 1 ? -a : a - b},
 	'*': (a, b) => a * b,
+	'**': (a, b) => Math.pow(a, b),
 	'/': (a, b) => a / b,
 	'%': util.async(function(args, done, scope)
 	{

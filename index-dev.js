@@ -2,7 +2,7 @@
 
 var Environment = require('./src/env');
 
-var env = new Environment(process.argv[2] || process.cwd());
+var env = new Environment(/*process.argv[2] || */process.cwd());
 
 env.import(['test/lens/Test'], (config) =>
 {

@@ -622,11 +622,9 @@
 	var CompStatement = seq(TargetExp, sep1(COMMA, p.seq(p.alt(STR, RouteLiteral, IDENT, sep1(DOT, IDENT)), opt(AS.then(IDENT)))), AST('composure'));
 	// allow multiple 'path as x' declarations per composure
 
-	// module.exports = MultiExp.map(AST('block')).skip(ignore).skip(p.custom((success, failure) => (stream, i) => i >= stream.length ? success(i) : failure(i, 'Trailing input')))
-	// 	.or(Exp.skip(ignore));
+	module.exports = MultiExp.map(AST('block')).skip(ignore).skip(p.custom((success, failure) => (stream, i) => i >= stream.length ? success(i) : failure(i, 'Trailing input')))
+		.or(Exp.skip(ignore));
 
-	module.exports = optNext(MultiExp, opt(Exp).map(AST('export')), (list, exp) => (list.push(exp), list)).map(AST('block'))
-		.skip(ignore).skip(p.custom((success, failure) => (stream, i) => i >= stream.length ? success(i) : failure(i, 'Trailing input')));
 
 /***/ },
 /* 6 */
@@ -1820,9 +1818,12 @@
 		'<=': (a, b) => a <= b,
 		'&&': (a, b) => a && b,
 		'||': (a, b) => a || b,
+		'&': (a, b) => a !== undefined ? b : a,
+		'|': (a, b) => a !== undefined ? a : (b !== undefined ? b : a),
 		'+'(a, b) {return arguments.length == 1 ? +a : a + b},
 		'-'(a, b) {return arguments.length == 1 ? -a : a - b},
 		'*': (a, b) => a * b,
+		'**': (a, b) => Math.pow(a, b),
 		'/': (a, b) => a / b,
 		'%': util.async(function(args, done, scope)
 		{

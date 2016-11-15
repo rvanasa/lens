@@ -10,7 +10,6 @@ class Environment
 	constructor(path)
 	{
 		this.path = path;
-		
 		this.imports = [];
 	}
 	
