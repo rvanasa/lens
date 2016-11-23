@@ -1957,7 +1957,7 @@
 			}
 			return array;
 		},
-		Object, String, Number, Boolean,
+		Object, String, Number, Boolean, Function,
 		Array, Error, JSON, Math,
 	}
 
