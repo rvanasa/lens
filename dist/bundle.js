@@ -611,7 +611,7 @@
 
 	var IdentExp = IDENT.map(AST('ident')).or(OPR.map(AST('opr')));
 
-	var TupleListExp = surround(L_PAREN, sep1(COMMA.or(sameLine), Exp).or(p.succeed([])), R_PAREN).map(AST('tuple'));
+	var TupleListExp = surround(L_PAREN, sep1(COMMA, Exp).skip(opt(COMMA)).or(p.succeed([])), R_PAREN).map(AST('tuple'));
 
 	var TupleExp = TupleListExp.map((tuple) => tuple.list.length == 1 ? tuple.list[0] : tuple);
 
