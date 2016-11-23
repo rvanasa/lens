@@ -133,7 +133,7 @@ module.exports = {
 		}
 		return array;
 	},
-	Object, Error, JSON, Math,
+	Object, JSON, Math,
 }
 
 function* permute(list, index)

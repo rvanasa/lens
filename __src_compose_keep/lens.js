@@ -30,11 +30,11 @@ var Lens =
 			}
 		};
 	},
-	eval(data, context)
+	eval(data, context, done)
 	{
-		if(!data) return Promise.resolve();
+		if(!data) done();
 		
-		return new Promise((resolve, reject) => Lens.parse(data).eval(context, resolve));
+		return Lens.parse(data).eval(context, done);
 	},
 };
 

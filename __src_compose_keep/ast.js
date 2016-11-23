@@ -3,193 +3,129 @@
 var Resource = require('plasma').Resource;
 
 var util = require('./util');
-
 var Scope = require('./scope');
+
+var builders = {};
+var composers = {};
+
+register({
+	id: 'literal',
+	props: ['value'],
+	compose(ast, context)
+	{
+		return ast.value === undefined ? 'undefined' : JSON.stringify(ast.value(context));
+	}
+});
+
+register({
+	id: 'ident',
+	props: ['value'],
+	compose(ast, context)
+	{
+		return escapeIdent(ast.value(context));
+	}
+});
+
+register({
+	id: 'opr',
+	props: ['value'],
+	compose: composers['ident']
+});
+
+register({
+	id: 'tuple',
+	props: ['args'],
+	compose(ast, context)
+	{
+		return '[' + ast.args(context).join(',') + ']';
+	}
+});
+
+register({
+	id: 'closure',
+	props: ['exp'],
+	compose(ast, context)
+	{
+		return 'function($AT, $HASH){return ' + ast.exp(context) + '}';
+	}
+});
+
+register({
+	id: 'target',
+	props: ['base', 'exp'],
+	compose(ast, context)
+	{
+		return ast.base(context) + '.' + ast.exp(context);
+	}
+});
+
+register({
+	id: 'indexer',
+	props: ['base', 'exp'],
+	compose(ast, context)
+	{
+		return ast.base(context) + '[' + ast.exp(context) + ']';
+	}
+});
+
+register({
+	id: 'invoke',
+	props: ['target', 'args'],
+	compose(ast, context)
+	{
+		return ast.target(context) + '(' + ast.args(context).join(',') + ')';
+	}
+});
+
+register({
+	id: 'block',
+	props: ['body'],
+	compose(ast, context)
+	{
+		return ast.body(context);
+	}
+});
+
+register({
+	id: 'multi',
+	props: ['list'],
+	compose(ast, context)
+	{
+		return ast.list(context).join(';');
+	}
+});
+
+register({
+	id: 'conditional',
+	props: ['condition', 'trueValue', 'falseValue'],
+	compose(ast, context)
+	{
+		return ast.condition(context) + '?' + ast.trueValue(context) + ':' + ast.falseValue(context);
+	}
+});
+
+register({
+	id: 'anonymous',
+	props: ['symbol', 'target'],
+	compose(ast, context)
+	{
+		var target = ast.target(context);
+		return escapeIdent(ast.symbol(context)) + (target ? '.' + target : '');
+	}
+});
+
+register({
+	id: 'route',
+	props: ['nodes'],
+	compose(ast, context)
+	{
+		var target = ast.target(context);
+		return escapeIdent(ast.symbol(context)) + (target ? '.' + target : '');
+	}
+});
 
 var AST =
 {
-	literal(value)
-	{
-		return {
-			value,
-			_type: 'literal',
-			eval(scope, done)
-			{
-				done(value);
-			}
-		};
-	},
-	ident(id)
-	{
-		return {
-			id,
-			eval(scope, done)
-			{
-				get(scope, id, done);
-			}
-		};
-	},
-	opr(id)
-	{
-		return AST.ident(id);
-	},
-	tuple(list)
-	{
-		return {
-			list,
-			eval(scope, done)
-			{
-				evalList(scope, list, done);
-			}
-		};
-	},
-	closure(exp)
-	{
-		return {
-			exp,
-			eval(scope, done)
-			{
-				done(util.async(function(args, done)
-				{
-					var fnScope = Scope.create(scope);
-					fnScope['@'] = args[0];
-					fnScope['#'] = args[1];
-					exp.eval(fnScope, done);
-				}));
-			}
-		};
-	},
-	target(base, exp)
-	{
-		return {
-			base, exp,
-			eval(scope, done)
-			{
-				base.eval(scope, (value) =>
-				{
-					exp.eval(Scope.createTangent(scope, value), done);
-				});
-			}
-		};
-	},
-	indexer(base, exp)
-	{
-		return {
-			base, exp,
-			eval(scope, done)
-			{
-				base.eval(scope, (value) =>
-				{
-					exp.eval(scope, (index) => done(value[index]));
-				});
-			}
-		};
-	},
-	invoke(target, arg)
-	{
-		return {
-			target, arg,
-			eval(scope, done)
-			{
-				target.eval(scope, (fn) =>
-				{
-					if(typeof fn !== 'function')
-					{
-						throw new Error('Cannot invoke ' + renderValue(fn) + (target.id ? ' `' + target.id + '`' : ''));
-					}
-					var self = Scope.getTarget(scope);
-					arg.eval(Scope.getBase(scope), (value) =>
-					{
-						if(fn.pattern && !fn.pattern.validate(scope, value))
-						{
-							throw new Error(`Invalid argument: ${renderValue(value)} ; expecting ${fn.pattern}`);
-						}
-						util.invoke(fn, self, value, done, scope);
-					});
-				});
-			}
-		}
-	},
-	block(body)
-	{
-		return {
-			body,
-			eval(scope, done)
-			{
-				var exported = false;
-				var exportValue;
-				
-				var child = Scope.create(scope);
-				child.export = function(value)
-				{
-					exported = true;
-					exportValue = value;
-				}
-				body.eval(child, (value) => done(exported ? exportValue : value));
-			}
-		};
-	},
-	multi(list)
-	{
-		return {
-			list,
-			eval(scope, done)
-			{
-				var result = {};
-				evalList(scope, list, (values) =>
-				{
-					for(var i = 0; i < values.length; i++)
-					{
-						var ast = list[i];
-						if('id' in ast)
-						{
-							var value = values[i];
-							result[ast.id] = value;
-						}
-					}
-					done(result);
-				})
-			}
-		};
-	},
-	conditional(condition, trueExp, falseExp)
-	{
-		return {
-			condition, trueExp, falseExp,
-			eval(scope, done)
-			{
-				condition.eval(scope, (value) =>
-				{
-					if(value)
-					{
-						trueExp.eval(scope, done);
-					}
-					else if(falseExp)
-					{
-						falseExp.eval(scope, done);
-					}
-					else
-					{
-						done();
-					}
-				})
-			}
-		};
-	},
-	anonymous(symbol, target)
-	{
-		return {
-			symbol,
-			target,
-			eval(scope, done)
-			{
-				get(scope, symbol, target === undefined ? done : (value) =>
-				{
-					get(Scope.createTangent(scope, value), target, done);
-				});
-			}
-		};
-	},
 	route(nodes)
 	{
 		return {
@@ -499,6 +435,46 @@ var AST =
 	},
 }
 
+function escapeIdent(value)
+{
+	var symbolRef = {
+		'~': 'TILDE',
+		'!': 'XM',
+		'@': 'AT',
+		'#': 'HASH',
+		'$': 'DOLLAR',
+		'%': 'PERCENT',
+		'^': 'CARET',
+		'&': 'AMP',
+		'*': 'STAR',
+		'|': 'PIPE',
+		'/': 'FSLASH',
+		'>': 'LT',
+		'<': 'GT',
+		'?': 'QM',
+	};
+	for(var symbol in symbolRef)
+	{
+		value = value.replace(symbol, '$' + symbolRef[symbol]);
+	}
+	return value;
+}
+
+function compose(ast, context)
+{
+	if(!context) console.log('Context not provided')//temp
+	
+	if(typeof ast !== 'object') return ast;
+	if(Array.isArray(ast)) return ast.map(x => compose(x, context));
+	
+	var obj = {};
+	for(let key in ast)
+	{
+		obj[key] = (context) => compose(ast[key], context);
+	}
+	return composers[ast._type](obj, context);
+}
+
 function get(scope, id, done)
 {
 	if(!(id in scope || Scope.isTangent(scope)))
@@ -557,6 +533,20 @@ function renderValue(value)
 	{
 		return value;
 	}
+}
+
+function register(config, interpret)
+{
+	builders[config.id] = function()
+	{
+		var ast = {_type: config.id};
+		for(var i = 0; i < arguments.length; i++)
+		{
+			ast[config.props[i]] = arguments[i];
+		}
+	};
+	
+	composers[config.id] = config.compose;
 }
 
 module.exports = function(id)

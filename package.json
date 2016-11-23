@@ -9,9 +9,5 @@
     "parsimmon": "^0.7.0"
   },
   "devDependencies": {
-    "grunt": "^0.4.5",
-    "grunt-contrib-jshint": "^1.0.0",
-    "grunt-contrib-nodeunit": "^1.0.0",
-    "grunt-contrib-uglify": "^1.0.1"
   }
 }

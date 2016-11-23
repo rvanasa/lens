@@ -82,11 +82,11 @@
 				}
 			};
 		},
-		eval(data, context, done)
+		eval(data, context)
 		{
-			if(!data) done();
+			if(!data) return Promise.resolve();
 			
-			return Lens.parse(data).eval(context, done);
+			return new Promise((resolve, reject) => Lens.parse(data).eval(context, resolve));
 		},
 	};
 
@@ -542,7 +542,7 @@
 		var invokeExp = AST('invoke');
 		var tupleExp = AST('tuple');
 		
-		exp = seq(oprExp.skip(sameLine), exp.map((exp) => tupleExp([exp])), invokeExp).or(exp);
+		exp = seq(oprExp.skip(sameLine), exp.map((exp) => [exp]), invokeExp).or(exp);
 		
 		return p.seqMap(exp, p.seq(oprExp, exp).many(), (exp, tails) =>
 		{
@@ -1737,18 +1737,6 @@
 		}
 	}
 
-	// function register(config)
-	// {
-	// 	AST[config.id] = function()
-	// 	{
-	// 		var ast = {_type: config.id};
-	// 		for(var i = 0; i < arguments.length; i++)
-	// 		{
-	// 			ast[config.props[i]] = arguments[i];
-	// 		}
-	// 	};
-	// }
-
 	module.exports = function(id)
 	{
 		var ast = AST[id];
@@ -1954,7 +1942,7 @@
 			}
 			return array;
 		},
-		Object, JSON, Math,
+		Object, Error, JSON, Math,
 	}
 
 	function* permute(list, index)
