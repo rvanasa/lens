@@ -556,11 +556,10 @@
 	});
 
 	var Statement = p.lazy('Statement', () => p.alt(
+		ExportStatement,
 		CompStatement,
 		FunctionStatement,
-		AssignStatement,
-		ExportStatement,
-		CompStatement
+		AssignStatement
 	));
 
 	var Pattern = p.lazy('Pattern', () => p.alt(
