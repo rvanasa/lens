@@ -611,7 +611,7 @@
 
 	var IdentExp = IDENT.map(AST('ident')).or(OPR.map(AST('opr')));
 
-	var TupleListExp = surround(L_PAREN, sep1(COMMA, Exp).or(p.succeed([])), R_PAREN).map(AST('tuple'));
+	var TupleListExp = surround(L_PAREN, sep1(COMMA.or(sameLine), Exp).or(p.succeed([])), R_PAREN).map(AST('tuple'));
 
 	var TupleExp = TupleListExp.map((tuple) => tuple.list.length == 1 ? tuple.list[0] : tuple);
 
@@ -636,7 +636,6 @@
 	var ExportStatement = EXPORT.then(Exp).map(AST('export'));
 
 	var CompStatement = seq(TargetExp, sep1(COMMA, p.seq(p.alt(STR, RouteLiteral, IDENT, sep1(DOT, IDENT)), opt(AS.then(IDENT)))), AST('composure'));
-	// allow multiple 'path as x' declarations per composure
 
 	module.exports = MultiExp.map(AST('block')).skip(ignore).skip(p.custom((success, failure) => (stream, i) => i >= stream.length ? success(i) : failure(i, 'Trailing input')))
 		.or(Exp.skip(ignore));
