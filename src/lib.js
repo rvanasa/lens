@@ -150,7 +150,8 @@ module.exports = {
 		}
 		return array;
 	},
-	Object, Error, JSON, Math,
+	Object, String, Number, Boolean,
+	Array, Error, JSON, Math,
 }
 
 function* permute(list, index)
