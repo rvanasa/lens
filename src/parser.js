@@ -104,7 +104,7 @@ var Exp = p.lazy('Expression', () =>
 	var invokeExp = AST('invoke');
 	var tupleExp = AST('tuple');
 	
-	exp = seq(oprExp.skip(sameLine), exp.map((exp) => [exp]), invokeExp).or(exp);
+	exp = seq(oprExp.skip(sameLine), exp.map((exp) => tupleExp([exp])), invokeExp).or(exp);
 	
 	return p.seqMap(exp, p.seq(oprExp, exp).many(), (exp, tails) =>
 	{

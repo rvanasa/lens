@@ -1,0 +1,4 @@
+
+arr = (1, 10, 5, 3, -1, 7)
+
+export (arr[select(arr, <)] == 10) && (arr[select(arr, >)] == -1)

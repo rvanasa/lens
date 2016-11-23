@@ -14,7 +14,7 @@ module.exports = {
 	'<=': (a, b) => a <= b,
 	'&&': (a, b) => a && b,
 	'||': (a, b) => a || b,
-	'&': (a, b) => a !== undefined ? b : a,
+	'&': (a, b) => a !== undefined ? (b !== undefined ? [a, b] : b) : a,
 	'|': (a, b) => a !== undefined ? a : (b !== undefined ? b : a),
 	'+'(a, b) {return arguments.length == 1 ? +a : a + b},
 	'-'(a, b) {return arguments.length == 1 ? -a : a - b},
@@ -90,6 +90,23 @@ module.exports = {
 			util.invoke(transform, value, [value, target[i]], reduce, scope);
 		}
 	}),
+	select: util.async(function(args, done, scope)
+	{
+		var target = args[0], select = args[1];
+		var i = 0;
+		var selected = 0;
+		step(target[i]);
+		function step(bool)
+		{
+			if(bool) selected = i;
+			
+			i++;
+			if(i >= target.length) return done(selected);
+			
+			util.invoke(select, null, [target[selected], target[i]], step, scope);
+		}
+	}),
+	len: (value) => value.length,
 	scope: util.async(function(args, done, scope)
 	{
 		done(args.length ? scope[args[0]] : scope);

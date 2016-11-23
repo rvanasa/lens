@@ -12,5 +12,9 @@ for(var name of fs.readdirSync(testDir))
 	env.import([name.replace(/\.lens$/, '')], (result) =>
 	{
 		console.log('->', result);
+		if(result instanceof Error)
+		{
+			console.log(result.stack);
+		}
 	});
 }
