@@ -2,7 +2,7 @@ var fs = require('fs');
 
 var Environment = require('../src/env');
 
-var testDir = __dirname + '/lens';
+var testDir = __dirname + '/lib';
 
 var env = new Environment(testDir);
 

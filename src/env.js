@@ -7,7 +7,7 @@ var lens = require('./lens');
 
 module.exports = function(dir)
 {
-	var imports = [];
+	this.imports = [];
 	
 	function resolveImport(id)
 	{
@@ -19,16 +19,16 @@ module.exports = function(dir)
 		var id = args[0];
 		if(typeof id !== 'string') id = id.join('.');
 		
-		var resource = imports[id];
-		if(!resource)
+		var cache = this.imports[id];
+		if(!cache)
 		{
-			resource = lens.eval(fs.readFileSync(resolveImport(id)), this).then(done, done);
-			imports[id] = resource;
+			var raw = fs.readFileSync(resolveImport(id));
+			cache = {
+				promise: lens.eval(raw, this),
+				raw: cache.raw,
+			}
+			this.imports[id] = cache;
 		}
-		else
-		{
-			done(resource);
-		}
-		return resource;
+		cache.promise.then(done, done);
 	});
 };
