@@ -25,7 +25,7 @@ module.exports = function(dir)
 			var raw = fs.readFileSync(resolveImport(id));
 			cache = {
 				promise: lens.eval(raw, this),
-				raw: cache.raw,
+				raw,
 			}
 			this.imports[id] = cache;
 		}
