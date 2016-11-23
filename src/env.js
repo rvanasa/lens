@@ -22,7 +22,7 @@ module.exports = function(dir)
 		var cache = this.imports[id];
 		if(!cache)
 		{
-			var raw = fs.readFileSync(resolveImport(id));
+			var raw = fs.readFileSync(resolveImport(id)).toString();
 			cache = {
 				promise: lens.eval(raw, this),
 				raw,
