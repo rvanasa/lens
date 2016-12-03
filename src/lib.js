@@ -7,7 +7,9 @@ var util = require('./util');
 module.exports = {
 	'!': (v) => !v,
 	'==': (a, b) => a === b,
+	'~=': (a, b) => a == b,
 	'!=': (a, b) => a !== b,
+	'!~=': (a, b) => a != b,
 	'>': (a, b) => a > b,
 	'<': (a, b) => a < b,
 	'>=': (a, b) => a >= b,
@@ -36,6 +38,12 @@ module.exports = {
 	'|<': Math.max,
 	'|>': Math.min,
 	'::': (a, b) => [].concat(a !== undefined ? a : [], b !== undefined ? b : []),
+	'+<'()
+	{
+		var list = [].slice.call(arguments);
+		list.unshift({});
+		return Object.assign.apply(Object, list);
+	},
 	'<>'(a, b)
 	{
 		var list = [];

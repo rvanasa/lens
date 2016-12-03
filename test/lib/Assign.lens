@@ -1,0 +1,20 @@
+
+a = {
+	some = 'thing'
+	another = 'stv'
+}
+
+b = {
+	some = 'overrided'
+	foo = 'bar'
+}
+
+ab = a +< b
+
+export
+(
+	ab.some == 'overrided',
+	ab.another == 'stv',
+	ab.foo == 'bar'
+	
+) ^^ &&
