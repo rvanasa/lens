@@ -95,7 +95,14 @@ var AST =
 				{
 					if(typeof fn !== 'function')
 					{
-						throw new Error('Cannot invoke ' + renderValue(fn) + (target.id ? ' `' + target.id + '`' : ''));
+						while(fn.invoke)
+						{
+							fn = fn.invoke;
+							if(!fn)
+							{
+								throw new Error('Cannot invoke ' + renderValue(fn) + (target.id ? ' `' + target.id + '`' : ''));
+							}
+						}
 					}
 					var self = Scope.getTarget(scope);
 					arg.eval(Scope.getBase(scope), (value) =>
