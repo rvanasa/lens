@@ -217,10 +217,10 @@ var AST =
 			}
 		}
 	},
-	assign(id, exp)
+	assign(local, id, exp)
 	{
 		return {
-			id, exp,
+			local, id, exp,
 			eval(scope, done)
 			{
 				if(exp._type === 'literal')
@@ -236,9 +236,7 @@ var AST =
 					resource.id = id;
 				}
 				
-				add(scope, id, resource);
-				// resource.request(done, (err) => done(err instanceof Error ? err : new Error(err)));
-				
+				if(!local) add(scope, id, resource);
 				done(resource);
 			}
 		};

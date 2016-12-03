@@ -503,6 +503,7 @@
 	var AT_MARK = keyword('@');
 	var POUND_SYMBOL = keyword('#');
 
+	var LOCAL = keyword('local');
 	var EXPORT = keyword('export');
 
 	var AS = keyword('as');
@@ -629,7 +630,7 @@
 
 	var AnonymousExp = seq(p.alt(AT_MARK, POUND_SYMBOL), opt(p.alt(IDENT, STR, NUM)), AST('anonymous'));
 
-	var AssignStatement = seq(p.alt(IDENT, OPR).skip(ASSIGN), Exp, AST('assign'));
+	var AssignStatement = seq(p.alt(LOCAL.result(true), p.succeed(false)), p.alt(IDENT, OPR).skip(ASSIGN), Exp, AST('assign'));
 
 	var FunctionStatement = seq(p.alt(IDENT, OPR), p.alt(TuplePattern, RoutePattern.map(r => AST('tuplePattern')([r]))), p.alt(ASSIGN.then(Exp), BlockExp), AST('functionDef'));
 
@@ -1393,10 +1394,10 @@
 				}
 			}
 		},
-		assign(id, exp)
+		assign(local, id, exp)
 		{
 			return {
-				id, exp,
+				local, id, exp,
 				eval(scope, done)
 				{
 					if(exp._type === 'literal')
@@ -1412,9 +1413,7 @@
 						resource.id = id;
 					}
 					
-					add(scope, id, resource);
-					// resource.request(done, (err) => done(err instanceof Error ? err : new Error(err)));
-					
+					if(!local) add(scope, id, resource);
 					done(resource);
 				}
 			};
