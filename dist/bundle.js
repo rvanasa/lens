@@ -477,7 +477,7 @@
 	var ignore = p.alt(p.string('//').then(p.regex(/.*$/m)), p.whitespace).many();
 
 	var IDENT = lexeme(p.regex(/[_A-Za-z$][_A-Za-z$0-9]*/));
-	var OPR = lexeme(p.regex(/[+\-*/<>^~%!?&|:]+|==/));
+	var OPR = lexeme(p.regex(/[+\-*/<>^~%!?$&|:]+|==/));
 	var STR = lexeme(p.regex(/'([^'\\]*(\\.[^'\\]*)*)'|"([^"\\]*(\\.[^"\\]*)*)"/)).map(s => s.substring(1, s.length - 1));
 	var NUM = lexeme(p.regex(/-?([0-9]+|[0-9]*\.[0-9]+)/)).map(Number);
 	var TRUE = keyword('true').result(true);
