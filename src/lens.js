@@ -18,7 +18,7 @@ var Lens =
 		
 		return {
 			ast: result.value,
-			eval(context, done)
+			eval(context)
 			{
 				var scope = Object.create(null);
 				
@@ -26,7 +26,7 @@ var Lens =
 					ast: this.ast,
 				}, context);
 				
-				this.ast.eval(scope, done);
+				return new Promise((resolve, reject) => this.ast.eval(scope, resolve));
 			}
 		};
 	},
@@ -34,7 +34,7 @@ var Lens =
 	{
 		if(!data) return Promise.resolve();
 		
-		return new Promise((resolve, reject) => Lens.parse(data).eval(context, resolve));
+		return Lens.parse(data).eval(context);
 	},
 };
 
