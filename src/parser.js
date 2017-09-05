@@ -36,7 +36,7 @@ function surround(left, parser, right)
 	return left.then(parser).skip(right);
 }
 
-var ignore = p.alt(p.string('//').then(p.regex(/.*$/m)), p.whitespace).many();
+var ignore = p.alt(p.whitespace, p.string('//').then(p.regex(/.*$/m))).many();
 
 var IDENT = lexeme(p.regex(/[_A-Za-z$][_A-Za-z$0-9]*/));
 var OPR = lexeme(p.regex(/[+\-*/<>^~%!?$&|:]+|==/));
@@ -102,17 +102,17 @@ var Exp = p.lazy('Expression', () =>
 	);
 	
 	var oprExp = OPR.map(AST('opr'));
-	var invokeExp = AST('invoke');
-	var tupleExp = AST('tuple');
+	var invokeAST = AST('invoke');
+	var tupleAST = AST('tuple');
 	
-	exp = seq(oprExp.skip(sameLine), exp.map((exp) => tupleExp([exp])), invokeExp).or(exp);
+	exp = seq(oprExp.skip(sameLine), exp.map((exp) => tupleAST([exp])), invokeAST).or(exp);
 	
-	return p.seqMap(exp, p.seq(oprExp, exp).many(), (exp, tails) =>
+	return seq(exp, p.seq(oprExp, exp).many(), (exp, tails) =>
 	{
 		for(var i = 0; i < tails.length; i++)
 		{
 			var tail = tails[i];
-			exp = invokeExp(tail[0], tupleExp([exp, tail[1]]));
+			exp = invokeAST(tail[0], tupleAST([exp, tail[1]]));
 		}
 		return exp;
 	});

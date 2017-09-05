@@ -5,7 +5,7 @@ a = {
 }
 
 b = {
-	some = 'overrided'
+	some = 'overriden'
 	foo = 'bar'
 }
 
@@ -13,7 +13,7 @@ ab = a +< b
 
 export
 (
-	ab.some == 'overrided',
+	ab.some == 'overriden',
 	ab.another == 'stv',
 	ab.foo == 'bar'
 	

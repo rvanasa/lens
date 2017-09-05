@@ -155,7 +155,7 @@ var AST =
 						}
 					}
 					done(result);
-				})
+				});
 			}
 		};
 	},
